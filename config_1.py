@@ -1,0 +1,31 @@
+import os
+
+PRODUCTION_ENV = True if os.environ.get('ENV_TYPE')=='PRODUCTION' else False
+
+
+NSQ_LOOKUPD_HTTP_ADDR = '47.102.220.1:4161'
+NSQ_NSQD_TCP_ADDR = '47.102.220.1:4150'
+NSQ_NSQD_HTTP_ADDR = '47.102.220.1:4151'
+
+INPUT_NSQ_CONF = {
+    'lookupd_http_addresses': [NSQ_LOOKUPD_HTTP_ADDR]
+}
+OUTPUT_NSQ_CONF = {
+    'nsqd_tcp_addresses': NSQ_NSQD_TCP_ADDR
+}
+
+
+DB_USER_NAME = "song"
+DB_USER_PW = ""
+DB_SEVER_ADDR = "47.102.220.1:3306"
+DB_DATABASE_NAME = "bigdata"
+SQLALCHEMY_DATABASE_URI = "mysql+pymysql://{name:s}:{pw:s}@{addr:s}/{db:s}".format(
+    name=DB_USER_NAME,
+    pw=DB_USER_PW,
+    addr=DB_SEVER_ADDR,
+    db=DB_DATABASE_NAME)
+SQLALCHEMY_POOL_PRE_PING = True
+SQLALCHEMY_ECHO = False if PRODUCTION_ENV else True
+SQLALCHEMY_POOL_SIZE = 0
+SQLALCHEMY_POOL_MAX_OVERFLOW = -1
+SQLALCHEMY_POOL_RECYCLE = 120
