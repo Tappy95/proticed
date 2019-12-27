@@ -31,6 +31,7 @@ amazon_keyword_task = Table(
     Column('deleted_at', TIMESTAMP),
     Column('is_add', String),
     Column('last_update', String),
+    Column('capture_status', Integer),
     PrimaryKeyConstraint('id', name='pk')
 )
 
