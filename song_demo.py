@@ -86,7 +86,7 @@ def getkwrank():
         end_time=  b,
         # start_time='1',
         # end_time='1',
-    ).request()
+    ).aio_request()
     print(result)
 
 

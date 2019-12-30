@@ -110,36 +110,50 @@
 #                             print("更新amazon_rank成功")
 
 
-alist = ['2019-12-23 08:33:04','2019-12-24 08:33:04','2019-12-25 08:33:04','2019-12-26 08:33:04']
-import datetime
+# alist = ['2019-12-23 08:33:04','2019-12-24 08:33:04','2019-12-25 08:33:04','2019-12-26 08:33:04']
+# import datetime
+#
+# result_data = []
+# result_data.append({
+#     'id': 2,
+#     'create_time': '2012-10-8 11:09:22',
+# 	})
+# result_data.append({
+#     'id': 3,
+#     'create_time': '2012-10-10 11:09:22',
+#     })
+# result_data.append({
+#     'id': 1,
+#     'create_time': '2012-10-1 11:09:22',
+#     })
+#
+#
+# def cmp_datetime(a, b):
+#     a_datetime = datetime.datetime.strptime(a, '%Y-%m-%d %H:%M:%S')
+#     b_datetime = datetime.datetime.strptime(b, '%Y-%m-%d %H:%M:%S')
+#
+#     if a_datetime > b_datetime:
+#         return -1
+#     elif a_datetime < b_datetime:
+#         return 1
+#     else:
+#         return 0
+#
+# import operator
+# print ('before',result_data)
+# result_data.sort(key=operator.itemgetter('create_time'))
+# print ('after',result_data)
 
-result_data = []
-result_data.append({
-    'id': 2,
-    'create_time': '2012-10-8 11:09:22',
-	})
-result_data.append({
-    'id': 3,
-    'create_time': '2012-10-10 11:09:22',
-    })
-result_data.append({
-    'id': 1,
-    'create_time': '2012-10-1 11:09:22',
-    })
 
+import threading
+import asyncio
 
-def cmp_datetime(a, b):
-    a_datetime = datetime.datetime.strptime(a, '%Y-%m-%d %H:%M:%S')
-    b_datetime = datetime.datetime.strptime(b, '%Y-%m-%d %H:%M:%S')
+async def hello():
+    print('Hello world! (%s)' % threading.currentThread())
+    await asyncio.sleep(1)
+    print('Hello again! (%s)' % threading.currentThread())
 
-    if a_datetime > b_datetime:
-        return -1
-    elif a_datetime < b_datetime:
-        return 1
-    else:
-        return 0
-
-import operator
-print ('before',result_data)
-result_data.sort(key=operator.itemgetter('create_time'))
-print ('after',result_data)
+loop = asyncio.get_event_loop()
+tasks = [hello(), hello()]
+loop.run_until_complete(asyncio.wait(tasks))
+loop.close()
