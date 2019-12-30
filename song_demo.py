@@ -75,11 +75,15 @@ class add_crawler():
         pass
 
 def getkwrank():
+    a = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
+    print(a)
+    b = (datetime.now().replace(microsecond=0) - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
+    print(b)
     result =  GetAmazonKWMResult(
         # ids = [x for x in range(234615,234630)],
-        ids = [235652],
-        start_time= '2019-12-17 12:00:00',
-        end_time=  '2019-12-23 14:00:00',
+        ids = [235672],
+        start_time= a,
+        end_time=  b,
         # start_time='1',
         # end_time='1',
     ).request()

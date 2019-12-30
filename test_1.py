@@ -1,5 +1,6 @@
 import asyncio
 import json
+import operator
 from datetime import datetime, timedelta
 
 from sqlalchemy import create_engine, select, and_, or_
@@ -283,29 +284,32 @@ def update_rank_db_by_effecttask():
         print((datetime.now()).strftime('%Y-%m-%d %H:%M:%S'))
         print(datetime.now() .replace(microsecond=0) -  timedelta(days=7))
         result_rank = GetAmazonKWMResult(
-            ids=an_id,
-            # 默认一天
-
+            ids=[an_id],
+            # 默认一周
             start_time=(datetime.now()).strftime('%Y-%m-%d %H:%M:%S'),
-            end_time=(datetime.now() .replace(microsecond=0) -  timedelta(days=7)),
+            end_time=(datetime.now() .replace(microsecond=0) -  timedelta(days=7))\
+                .strftime('%Y-%m-%d %H:%M:%S'),
         ).request()
         print(result_rank)
-        if result_rank and result_rank['msg'] == "success":
-            print("获取关键词排名", result_rank['result'])
-            with engine.connect() as conn:
-                keyword_rank = KeywordRankInfo(result_rank.get("result", []))
-                for infos in keyword_rank.parsed_infos():
-                    insert_stmt = insert(amazon_keyword_rank)
-                    on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(
-                        asin=insert_stmt.inserted.asin,
-                        keyword=insert_stmt.inserted.keyword,
-                        site=insert_stmt.inserted.site,
-                        rank=insert_stmt.inserted.rank,
-                        aid=insert_stmt.inserted.aid,
-                        update_time=insert_stmt.inserted.update_time,
-                    )
-                    print("更新amazon_rank成功")
-                    return conn.execute(on_duplicate_key_stmt, infos)
+        if result_rank['result'] and result_rank['msg'] == "success":
+            rank_time_sort = [rank_data for rank_data in result_rank['result'][0]['keyword_list']]
+            rank_time_sort.sort(key=operator.itemgetter('start_time'))
+            if rank_time_sort:
+                print("获取关键词排名", rank_time_sort[0])
+                with engine.connect() as conn:
+                    keyword_rank = KeywordRankInfo(rank_time_sort[0])
+                    for infos in keyword_rank.parsed_infos():
+                        insert_stmt = insert(amazon_keyword_rank)
+                        on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+                            asin=insert_stmt.inserted.asin,
+                            keyword=insert_stmt.inserted.keyword,
+                            site=insert_stmt.inserted.site,
+                            rank=insert_stmt.inserted.rank,
+                            aid=insert_stmt.inserted.aid,
+                            update_time=insert_stmt.inserted.update_time,
+                        )
+                        print("更新amazon_rank成功")
+                        return conn.execute(on_duplicate_key_stmt, infos)
 
 
 
@@ -313,62 +317,63 @@ def update_rank_db_by_effecttask():
 async def new_task_db_by_invalidtask():
     # 获取无效任务的参数,先删除API任务,再下新监控任务,再更新task_DB
     invalid_data = db_classification_invalid()
-    for row in invalid_data:
-        print("等待del_request")
-        print(row['id'])
-        result_del = DelAmazonKWM(
-            ids=[row['id']],
-        ).request()
-        with engine.connect() as conn:
-            conn.execute(amazon_keyword_task.delete()\
-                         .where(amazon_keyword_task.c.id == row['id']))
-        if result_del and result_del['msg'] == "success":
-            print("等待add_request",row['id'])
-            result_newtask = AddAmazonKWM(
-                station=row['station'],
-                asin_and_keywords=[{"asin": row['asin'], "keyword": row['keyword']}],
-                num_of_days=NUM_OF_DAYS,
-                monitoring_num=MONITORING_NUM,
+    if invalid_data:
+        for row in invalid_data:
+            print("等待del_request")
+            print(row['id'])
+            result_del = DelAmazonKWM(
+                ids=[row['id']],
             ).request()
-            print(row['asin'],row['keyword'],row['station'])
-            print("在HY创建监控任务", result_newtask)
-            # 获取添加任务的ID,向海鹰获取监控商品信息
-            if result_newtask and result_newtask["msg"] == "success":
-                for one_task in result_newtask['result']:
-                    print("等待getstatus_request")
-                    result_task = GetAmazonKWMStatus(
-                        station=row['station'],
-                        capture_status=0,
-                        ids=[one_task['id']],
-                    ).request()
-                    print("获取 任务ID", result_task)
-                    if result_task['msg'] == "success":
-                        for total_task in result_task['result']['list']:
-                            keyword_taskinfo = KeywordTaskInfo()
-                            print(total_task)
-                            with engine.connect() as conn:
-                                print(keyword_taskinfo.parse(total_task))
-                                infos = keyword_taskinfo.parse(total_task)
-                                insert_stmt = insert(amazon_keyword_task)
-                                onduplicate_key_stmt = insert_stmt.on_duplicate_key_update(
-                                    id=insert_stmt.inserted.id,
-                                    asin=insert_stmt.inserted.asin,
-                                    keyword=insert_stmt.inserted.keyword,
-                                    status=insert_stmt.inserted.status,
-                                    monitoring_num=insert_stmt.inserted.monitoring_num,
-                                    monitoring_count=insert_stmt.inserted.monitoring_count,
-                                    monitoring_type=insert_stmt.inserted.monitoring_type,
-                                    station=insert_stmt.inserted.station,
-                                    start_time=insert_stmt.inserted.start_time,
-                                    end_time=insert_stmt.inserted.end_time,
-                                    created_at=insert_stmt.inserted.created_at,
-                                    deleted_at=insert_stmt.inserted.deleted_at,
-                                    is_add=insert_stmt.inserted.start_time,
-                                    last_update=insert_stmt.inserted.last_update,
-                                    capture_status=insert_stmt.inserted.capture_status,
-                                )
-                                print("更新amazon_task成功{}".format(one_task['id']))
-                                return conn.execute(onduplicate_key_stmt, infos)
+            with engine.connect() as conn:
+                conn.execute(amazon_keyword_task.delete()\
+                             .where(amazon_keyword_task.c.id == row['id']))
+            if result_del and result_del['msg'] == "success":
+                print("等待add_request",row['id'])
+                result_newtask = AddAmazonKWM(
+                    station=row['station'],
+                    asin_and_keywords=[{"asin": row['asin'], "keyword": row['keyword']}],
+                    num_of_days=NUM_OF_DAYS,
+                    monitoring_num=MONITORING_NUM,
+                ).request()
+                print(row['asin'],row['keyword'],row['station'])
+                print("在HY创建监控任务", result_newtask)
+                # 获取添加任务的ID,向海鹰获取监控商品信息
+                if result_newtask and result_newtask["msg"] == "success":
+                    for one_task in result_newtask['result']:
+                        print("等待getstatus_request")
+                        result_task = GetAmazonKWMStatus(
+                            station=row['station'],
+                            capture_status=0,
+                            ids=[one_task['id']],
+                        ).request()
+                        print("获取 任务ID", result_task)
+                        if result_task['msg'] == "success":
+                            for total_task in result_task['result']['list']:
+                                keyword_taskinfo = KeywordTaskInfo()
+                                print(total_task)
+                                with engine.connect() as conn:
+                                    print(keyword_taskinfo.parse(total_task))
+                                    infos = keyword_taskinfo.parse(total_task)
+                                    insert_stmt = insert(amazon_keyword_task)
+                                    onduplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+                                        id=insert_stmt.inserted.id,
+                                        asin=insert_stmt.inserted.asin,
+                                        keyword=insert_stmt.inserted.keyword,
+                                        status=insert_stmt.inserted.status,
+                                        monitoring_num=insert_stmt.inserted.monitoring_num,
+                                        monitoring_count=insert_stmt.inserted.monitoring_count,
+                                        monitoring_type=insert_stmt.inserted.monitoring_type,
+                                        station=insert_stmt.inserted.station,
+                                        start_time=insert_stmt.inserted.start_time,
+                                        end_time=insert_stmt.inserted.end_time,
+                                        created_at=insert_stmt.inserted.created_at,
+                                        deleted_at=insert_stmt.inserted.deleted_at,
+                                        is_add=insert_stmt.inserted.start_time,
+                                        last_update=insert_stmt.inserted.last_update,
+                                        capture_status=insert_stmt.inserted.capture_status,
+                                    )
+                                    print("更新amazon_task成功{}".format(one_task['id']))
+                                    return conn.execute(onduplicate_key_stmt, infos)
 
 
 
@@ -411,7 +416,7 @@ def run():
     group.add_output_endpoint('output', output_end)
 
     server.add_routine_worker(update_rank_db_by_effecttask, interval=1, immediately=True)
-    server.add_routine_worker(new_task_db_by_invalidtask, interval=1, immediately=True)
+    server.add_routine_worker(new_task_db_by_invalidtask, interval=20)
     print("run server")
     server.run()
     print("end")
