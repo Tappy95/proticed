@@ -186,8 +186,23 @@ def db_classification_invalid():
                 invalid_id.append(row['id'])
         print(invalid_id)
 
+def handle(task):
+    hy_task = HYTask(task)
+    print(hy_task.task_data)
+
+
 if __name__ == '__main__':
-    getkwrank()
+    task = {
+            "task": "haiying.amazon.keyword",
+            "data": {
+                "site": 'US',
+                "asin": "B07KMM96GV",
+                "keyword": "airjordans 11",
+            }
+        }
+    print(json.dumps(task))
+    # handle()
+    # getkwrank()
     # db_classification_invalid()
     # print(db_classification_effect())
     # getstatus()

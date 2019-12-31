@@ -4,7 +4,6 @@ PY35 = sys.version_info >= (3, 5)
 assert PY35, "Require python 3.5 or later version"
 
 from .error import *
-
 from .endpoints.endpoints import *
 from .endpoints.rabbitmq_endpoints import *
 #from .endpoints.time_endpoints import *
