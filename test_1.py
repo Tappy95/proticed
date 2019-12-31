@@ -64,12 +64,13 @@ class classification():
         ).where(
             or_(
                 amazon_keyword_task.c.capture_status is None,
-                amazon_keyword_task.c.capture_status == 6,
-                (amazon_keyword_task.c.end_time - datetime.now()) < timedelta(days=5),
-                (datetime.now() - amazon_keyword_task.c.last_update) > timedelta(days=4),
+                amazon_keyword_task.c.capture_status == 2,
+                # (amazon_keyword_task.c.end_time - datetime.now()) < timedelta(days=5),
+                # (datetime.now() - amazon_keyword_task.c.last_update) > timedelta(days=4),
             )
         )).fetchall()
         return select_invalid
 
 a = classification()
-print(a.invalid())
+b = a.invalid()
+print(b['id'])

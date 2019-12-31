@@ -12,7 +12,7 @@ from api.amazon_keyword import GetAmazonKWMStatus, AddAmazonKWM, GetAmazonKWMAll
 from models.amazon_models import amazon_keyword_task
 from task_protocol import HYTask
 from sqlalchemy import  select
-from config_1 import *
+from config import *
 from util.pub import pub_to_nsq
 
 engine = create_engine(
@@ -34,11 +34,7 @@ def getstatus():
     # with engine.connect() as conn:
     #     result_from_db = select(([amazon_keyword_task]))
     #     conn.execute()
-    result = GetAmazonKWMStatus(
-        ids=[234624],
-        station='JP',
-        capture_status=6,
-    ).request()
+    result = GetAmazonKWMStatus('JP',6,[234624],).request()
     print(result,"getstatus")
 
 
@@ -192,15 +188,17 @@ def handle(task):
 
 
 if __name__ == '__main__':
-    task = {
-            "task": "haiying.amazon.keyword",
-            "data": {
-                "site": 'US',
-                "asin": "B07KMM96GV",
-                "keyword": "airjordans 11",
-            }
-        }
-    print(json.dumps(task))
+    getstatus()
+
+    # task = {
+    #         "task": "haiying.amazon.keyword",
+    #         "data": {
+    #             "site": 'US',
+    #             "asin": "B07KMM96GV",
+    #             "keyword": "airjordans 11",
+    #         }
+    #     }
+    # print(json.dumps(task))
     # handle()
     # getkwrank()
     # db_classification_invalid()
