@@ -6,13 +6,13 @@ from sqlalchemy import create_engine, select, and_, or_
 from sqlalchemy.dialects.mysql import insert
 
 import pipeflow
+from amazon_keyword.worker import KeywordTaskInfo
 from pipeflow import NsqInputEndpoint, NsqOutputEndpoint
 from config_1 import *
 from task_protocol import HYTask
 from models.amazon_models import amazon_keyword_task, amazon_keyword_rank
 from api.amazon_keyword import GetAmazonKWMStatus, AddAmazonKWM, GetAmazonKWMResult, DelAmazonKWM
 from util.pub import pub_to_nsq
-
 
 WORKER_NUMBER = 2
 TOPIC_NAME = 'haiying.amazon.keyword'
@@ -29,52 +29,39 @@ engine = create_engine(
 )
 
 
-class classification():
+class Classification:
     def __init__(self):
         self.conn = engine.connect()
 
-    def task_result(self):
-        select_task = self.conn.execute(select(
-            [amazon_keyword_task]
-        )).fetchall()
-        return select_task
+    def __del__(self):
+        self.conn.close()
+
+    def update_task_db(self, total_task):
+        keyword_taskinfo = KeywordTaskInfo()
+        print(keyword_taskinfo.parse(total_task))
+        infos = keyword_taskinfo.parse(total_task)
+        insert_stmt = insert(amazon_keyword_task)
+        onduplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+            id=insert_stmt.inserted.id,
+            asin=insert_stmt.inserted.asin,
+            keyword=insert_stmt.inserted.keyword,
+            status=insert_stmt.inserted.status,
+            monitoring_num=insert_stmt.inserted.monitoring_num,
+            monitoring_count=insert_stmt.inserted.monitoring_count,
+            monitoring_type=insert_stmt.inserted.monitoring_type,
+            station=insert_stmt.inserted.station,
+            start_time=insert_stmt.inserted.start_time,
+            end_time=insert_stmt.inserted.end_time,
+            created_at=insert_stmt.inserted.created_at,
+            deleted_at=insert_stmt.inserted.deleted_at,
+            is_add=insert_stmt.inserted.start_time,
+            last_update=insert_stmt.inserted.last_update,
+            capture_status=insert_stmt.inserted.capture_status,
+        )
+        return self.conn.execute(onduplicate_key_stmt, infos)
 
     def effect(self):
-        selected_data = self.task_result()
-        select_effect = self.conn.execute(select(
-            [selected_data.c.id]
-        ).where(
-            and_(
-                selected_data.c.capture_status != 6,
-                selected_data.c.deleted_at is None,
-                selected_data.c.end_time - datetime.now() > timedelta(days=5),
-            )
-        )).fetchall()
-        return select_effect.alias()
-
-    def invalid(self):
-        select_invalid = self.conn.execute(select(
-            [
-                amazon_keyword_task.c.id,
-                amazon_keyword_task.c.capture_status,
-                amazon_keyword_task.c.end_time,
-                amazon_keyword_task.c.last_update,
-                amazon_keyword_task.c.deleted_at,
-            ]
-        ).where(
-            or_(
-                amazon_keyword_task.c.capture_status is None,
-                amazon_keyword_task.c.capture_status == 2,
-                # (amazon_keyword_task.c.end_time - datetime.now()) < timedelta(days=5),
-                # (datetime.now() - amazon_keyword_task.c.last_update) > timedelta(days=4),
-            )
-        )).fetchall()
-        return select_invalid
-
-
-def db_classification_effect():
-    with engine.connect() as conn:
-        select_effect_task = conn.execute(select([
+        select_effect_task = self.conn.execute(select([
             amazon_keyword_task.c.id,
             amazon_keyword_task.c.end_time,
             amazon_keyword_task.c.capture_status,
@@ -85,14 +72,52 @@ def db_classification_effect():
             if one['end_time'] is not None and one['end_time'] - datetime.now() > timedelta(days=5) \
                     and one['capture_status'] != 6:
                 effect_id.append(one['id'])
-        print(effect_id)
-        select_effect_data = conn.execute(select([
+
+        select_effect_data = self.conn.execute(select([
             amazon_keyword_task.c.id,
             amazon_keyword_task.c.station,
-        ],
-            amazon_keyword_task.c.id.in_(effect_id)
-        )).fetchall()
+        ]).where(
+            amazon_keyword_task.c.id.in_(effect_id),
+        ))
         return select_effect_data
 
+    def invalid(self):
+        select_invalid_task = self.conn.execute(select([
+            amazon_keyword_task.c.id,
+            amazon_keyword_task.c.capture_status,
+            amazon_keyword_task.c.end_time,
+            amazon_keyword_task.c.last_update,
+            amazon_keyword_task.c.deleted_at,
+        ])).fetchall()
+        print(select_invalid_task)
+        invalid_id = []
+        for row in select_invalid_task:
 
-print(db_classification_effect())
+            if row['capture_status'] == None or \
+                    row['capture_status'] == 6 or \
+                    row['deleted_at'] is not None or \
+                    (row['end_time'] - datetime.now()) < timedelta(days=5) or \
+                    datetime.now() - row['last_update'] > timedelta(days=4):
+                invalid_id.append(row['id'])
+
+        print(invalid_id)
+        for row in invalid_id:
+            invalid_task = self.conn.execute(select([
+                amazon_keyword_task.c.station,
+                amazon_keyword_task.c.keyword,
+                amazon_keyword_task.c.asin,
+                amazon_keyword_task.c.id,
+            ]).where(
+                amazon_keyword_task.c.id == row,
+            ))
+            return invalid_task
+
+
+a = Classification()
+b = a.effect()
+# print(b)
+
+def sdfsd():
+    print(b)
+
+sdfsd()
