@@ -36,6 +36,7 @@ class Classification:
     def __del__(self):
         self.conn.close()
 
+
     def update_task_db(self, total_task):
         keyword_taskinfo = KeywordTaskInfo()
         print(keyword_taskinfo.parse(total_task))
