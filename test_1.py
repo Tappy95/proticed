@@ -71,8 +71,28 @@ class classification():
         )).fetchall()
         return select_invalid
 
-b = classification()
-a = b.invalid()
-for i in a:
-    # print(i)
-    print(i['id'])
+
+def db_classification_effect():
+    with engine.connect() as conn:
+        select_effect_task = conn.execute(select([
+            amazon_keyword_task.c.id,
+            amazon_keyword_task.c.end_time,
+            amazon_keyword_task.c.capture_status,
+        ])).fetchall()
+        effect_id = []
+        for one in select_effect_task:
+
+            if one['end_time'] is not None and one['end_time'] - datetime.now() > timedelta(days=5) \
+                    and one['capture_status'] != 6:
+                effect_id.append(one['id'])
+        print(effect_id)
+        select_effect_data = conn.execute(select([
+            amazon_keyword_task.c.id,
+            amazon_keyword_task.c.station,
+        ],
+            amazon_keyword_task.c.id.in_(effect_id)
+        )).fetchall()
+        return select_effect_data
+
+
+print(db_classification_effect())

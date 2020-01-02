@@ -1,4 +1,3 @@
-import json
 import operator
 from datetime import datetime, timedelta
 
@@ -11,7 +10,6 @@ from config import *
 from task_protocol import HYTask
 from models.amazon_models import amazon_keyword_task, amazon_keyword_rank
 from api.amazon_keyword import GetAmazonKWMStatus, AddAmazonKWM, GetAmazonKWMResult, DelAmazonKWM
-from util.pub import pub_to_nsq
 
 WORKER_NUMBER = 3
 TOPIC_NAME = 'haiying.amazon.keyword'
@@ -147,13 +145,6 @@ def handle(group, task):
                                 capture_status=insert_stmt.inserted.capture_status,
                             )
                             return conn.execute(onduplicate_key_stmt, infos)
-        else:
-            effect_data = db_classification_effect()
-            for a_result in select_task:
-                if a_result['id'] in effect_data:
-                    normal_always_update_rank()
-                else:
-                    normal_maintain_task_db()
 
 
 def db_classification_invalid():
@@ -191,26 +182,57 @@ def db_classification_invalid():
 
 def db_classification_effect():
     with engine.connect() as conn:
-        select_effect_task = conn.execute((select([
+        select_effect_task = conn.execute(select([
             amazon_keyword_task.c.id,
             amazon_keyword_task.c.end_time,
             amazon_keyword_task.c.capture_status,
-        ]))).fetchall()
+        ])).fetchall()
         effect_id = []
-    for one in select_effect_task:
+        for one in select_effect_task:
 
-        if one['end_time'] is not None and one['end_time'] - datetime.now() > timedelta(days=5) \
-                and one['capture_status'] != 6:
-            effect_id.append(one['id'])
+            if one['end_time'] is not None and one['end_time'] - datetime.now() > timedelta(days=5) \
+                    and one['capture_status'] != 6:
+                effect_id.append(one['id'])
 
-    print(effect_id)
-    return effect_id
+        select_effect_data = conn.execute(select([
+            amazon_keyword_task.c.id,
+            amazon_keyword_task.c.station,
+        ]).where(
+            amazon_keyword_task.c.id.in_(effect_id),
+        ))
+        return select_effect_data
 
 
-def normal_always_update_rank():
+def update_task_db(total_task):
+    keyword_taskinfo = KeywordTaskInfo()
+    with engine.connect() as conn:
+        print(keyword_taskinfo.parse(total_task))
+        infos = keyword_taskinfo.parse(total_task)
+        insert_stmt = insert(amazon_keyword_task)
+        onduplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+            id=insert_stmt.inserted.id,
+            asin=insert_stmt.inserted.asin,
+            keyword=insert_stmt.inserted.keyword,
+            status=insert_stmt.inserted.status,
+            monitoring_num=insert_stmt.inserted.monitoring_num,
+            monitoring_count=insert_stmt.inserted.monitoring_count,
+            monitoring_type=insert_stmt.inserted.monitoring_type,
+            station=insert_stmt.inserted.station,
+            start_time=insert_stmt.inserted.start_time,
+            end_time=insert_stmt.inserted.end_time,
+            created_at=insert_stmt.inserted.created_at,
+            deleted_at=insert_stmt.inserted.deleted_at,
+            is_add=insert_stmt.inserted.start_time,
+            last_update=insert_stmt.inserted.last_update,
+            capture_status=insert_stmt.inserted.capture_status,
+        )
+        return conn.execute(onduplicate_key_stmt, infos)
+
+
+def normal_update_rank():
     effect_data = db_classification_effect()
-    for an_id in effect_data:
-
+    for an_result in effect_data:
+        an_id = an_result['id']
         result_rank = GetAmazonKWMResult(
             ids=[an_id],
             start_time=(datetime.now()).strftime('%Y-%m-%d %H:%M:%S'),
@@ -239,7 +261,7 @@ def normal_always_update_rank():
                         return conn.execute(on_duplicate_key_stmt, infos)
 
 
-def normal_maintain_task_db():
+def normal_maintain_task():
     invalid_data = db_classification_invalid()
     if invalid_data:
         for row in invalid_data:
@@ -269,38 +291,27 @@ def normal_maintain_task_db():
 
                         if result_task['msg'] == "success":
                             for total_task in result_task['result']['list']:
-                                keyword_taskinfo = KeywordTaskInfo()
-                                print(total_task)
-                                with engine.connect() as conn:
-                                    print(keyword_taskinfo.parse(total_task))
-                                    infos = keyword_taskinfo.parse(total_task)
-                                    insert_stmt = insert(amazon_keyword_task)
-                                    onduplicate_key_stmt = insert_stmt.on_duplicate_key_update(
-                                        id=insert_stmt.inserted.id,
-                                        asin=insert_stmt.inserted.asin,
-                                        keyword=insert_stmt.inserted.keyword,
-                                        status=insert_stmt.inserted.status,
-                                        monitoring_num=insert_stmt.inserted.monitoring_num,
-                                        monitoring_count=insert_stmt.inserted.monitoring_count,
-                                        monitoring_type=insert_stmt.inserted.monitoring_type,
-                                        station=insert_stmt.inserted.station,
-                                        start_time=insert_stmt.inserted.start_time,
-                                        end_time=insert_stmt.inserted.end_time,
-                                        created_at=insert_stmt.inserted.created_at,
-                                        deleted_at=insert_stmt.inserted.deleted_at,
-                                        is_add=insert_stmt.inserted.start_time,
-                                        last_update=insert_stmt.inserted.last_update,
-                                        capture_status=insert_stmt.inserted.capture_status,
-                                    )
-                                    return conn.execute(onduplicate_key_stmt, infos)
+                                update_task_db(total_task)
+    effect_data = db_classification_effect()
+    for one_task in effect_data:
+
+        result_task = GetAmazonKWMStatus(
+            station=one_task['station'],
+            capture_status=0,
+            ids=[one_task['id']]
+        ).request()
+
+        if result_task['msg'] == "success":
+            for total_task in result_task['result']['list']:
+                update_task_db(total_task)
 
 
 async def always_update_rank():
-    return normal_always_update_rank()
+    return normal_update_rank()
 
 
 async def maintain_task_db():
-    return normal_maintain_task_db()
+    return normal_maintain_task()
 
 
 def run():
@@ -312,8 +323,9 @@ def run():
     group.add_input_endpoint('input', input_end)
 
     server.add_routine_worker(always_update_rank, interval=60 * 24, immediately=True)
-    server.add_routine_worker(maintain_task_db, interval=60 * 24)
+    server.add_routine_worker(maintain_task_db, interval=60 * 24, immediately=True)
     server.run()
 
 
-
+if __name__ == '__main__':
+    run()
