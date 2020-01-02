@@ -71,6 +71,8 @@ class classification():
         )).fetchall()
         return select_invalid
 
-a = classification()
-b = a.invalid()
-print(b['id'])
+b = classification()
+a = b.invalid()
+for i in a:
+    # print(i)
+    print(i['id'])
