@@ -8,4 +8,5 @@ ps -ef | grep nsq| grep -v grep | awk '{print $2}' | xargs kill -2
 
 # curl task
 curl -d 'hello world 2' 'http://127.0.0.1:4151/pub?topic=test'
-curl -d '{"task": "amazon_keyword_sync", "data": {"site": "US","asin": "B078Y9XF1M","keyword": "Eye+drops"}}' 'http://134.73.133.2:25751/pub?topic=haiying.amazon.keyword'
+curl -d '{"task": "amazon_keyword_sync", "data": {"site": "US","asin": ["B005HG9ESG","B00451XVMY"],"keyword": "best water"}}' 'http://134.73.133.2:25751/pub?topic=haiying.amazon.keyword'
+curl -d '{"task": "amazon_keyword_sync", "data": {"site": "US","asin": ["B07W2VV29T"],"keyword": "computer"}}' 'http://47.102.220.1:4151/pub?topic=haiying.amazon.keyword'
