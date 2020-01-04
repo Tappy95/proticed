@@ -32,6 +32,7 @@ amazon_keyword_task = Table(
     Column('is_add', String),
     Column('last_update', String),
     Column('capture_status', Integer),
+    Column('is_effect', Integer),
     PrimaryKeyConstraint('id', name='pk')
 )
 

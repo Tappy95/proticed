@@ -6,8 +6,10 @@ from datetime import datetime, timedelta
 import nsq
 import tornado.ioloop
 from sqlalchemy import create_engine, or_
+from sqlalchemy.dialects.mysql import insert
 
 from HY_keyword import TOPIC_NAME
+from amazon_keyword.worker import KeywordTaskInfo
 from api.amazon_keyword import GetAmazonKWMStatus, AddAmazonKWM, GetAmazonKWMAllResult, GetAmazonKWMResult
 from models.amazon_models import amazon_keyword_task
 from task_protocol import HYTask
@@ -77,12 +79,12 @@ def getkwrank():
     print(b)
     result =  GetAmazonKWMResult(
         # ids = [x for x in range(234615,234630)],
-        ids = [235672],
-        start_time= a,
-        end_time=  b,
+        ids=[266213],
+        start_time=b,
+        end_time=a,
         # start_time='1',
         # end_time='1',
-    ).aio_request()
+    ).request()
     print(result)
 
 
@@ -182,42 +184,46 @@ def db_classification_invalid():
                 invalid_id.append(row['id'])
         print(invalid_id)
 
-def handle(task):
-    hy_task = HYTask(task)
-    print(hy_task.task_data)
+def delete_all_task():
+    # for i in ["US", "UK", "DE", "FR", "JP", "IT", "ES", "CA", "AU"]:
+
+    result_task = GetAmazonKWMStatus(
+        station="US",
+        capture_status=0,
+        # ids=[j for j in range(265900,26600)],
+        # ids=["265984"]
+    ).request()
+    list_id = [get_id["id"] for get_id in result_task["result"]["list"]]
+    print("delete_all_id", list_id,len(list_id))
+    # # print(result_task)
+    # with engine.connect() as conn:
+    #     for total_task in result_task['result']['list']:
+    #         keyword_taskinfo = KeywordTaskInfo()
+    #         infos = keyword_taskinfo.parse(total_task)
+    #         insert_stmt = insert(amazon_keyword_task)
+    #         onduplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+    #             id=insert_stmt.inserted.id,
+    #             asin=insert_stmt.inserted.asin,
+    #             keyword=insert_stmt.inserted.keyword,
+    #             status=insert_stmt.inserted.status,
+    #             monitoring_num=insert_stmt.inserted.monitoring_num,
+    #             monitoring_count=insert_stmt.inserted.monitoring_count,
+    #             monitoring_type=insert_stmt.inserted.monitoring_type,
+    #             station=insert_stmt.inserted.station,
+    #             start_time=insert_stmt.inserted.start_time,
+    #             end_time=insert_stmt.inserted.end_time,
+    #             created_at=insert_stmt.inserted.created_at,
+    #             deleted_at=insert_stmt.inserted.deleted_at,
+    #             is_add=insert_stmt.inserted.start_time,
+    #             last_update=insert_stmt.inserted.last_update,
+    #             capture_status=insert_stmt.inserted.capture_status,
+    #             is_effect=insert_stmt.inserted.is_effect,
+    #         )
+    #         conn.execute(onduplicate_key_stmt, infos)
+def test_params(status):
+    if status == "jobs":
+        print("bingo")
 
 
 if __name__ == '__main__':
-    getstatus()
-
-    # task = {
-    #         "task": "haiying.amazon.keyword",
-    #         "data": {
-    #             "site": 'US',
-    #             "asin": "B07KMM96GV",
-    #             "keyword": "airjordans 11",
-    #         }
-    #     }
-    # print(json.dumps(task))
-    # handle()
-    # getkwrank()
-    # db_classification_invalid()
-    # print(db_classification_effect())
-    # getstatus()
-    # getallresult()
-    # writer = nsq.Writer(['127.0.0.1:4150'])
-    # tornado.ioloop.PeriodicCallback(pub_message, 2000).start()
-    # nsq.run()
-    # start_time = datetime.now()
-    # str = start_time.strftime('%Y-%m-%d %H:%M:%S')
-    # # getkwrank()
-    # # getstatus()
-    # end_time = time.strftime('%Y-%m-%d %H:%M:%S')
-    # end_time_2 = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
-    # print(start_time,"\n",end_time, "\n", end_time_2)
-    # a= datetime.now() - timedelta(days=1)
-    # print(a)
-    # getallresult()
-    # getallkwasin()'%Y-%m-%d %H:%M:%S'
-    # info = {'id': 235664, 'asin': 'B002JOO448', 'keyword': 'football', 'status': 'NormalAsin', 'monitoring_num': 4, 'monitoring_count': 0, 'monitoring_type': 3, 'station': 'US', 'start_time': '2019-12-26 12:12:55', 'end_time': '2020-01-25 12:01:55', 'created_at': '2019-12-26 12:12:17', 'deleted_at': None, 'is_add': 1, 'last_update': '2019-12-26 13:23:30'}
-    # print(map_test(info))
+    test_params("jobs")
