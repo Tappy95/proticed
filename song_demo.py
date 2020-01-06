@@ -185,10 +185,10 @@ def db_classification_invalid():
         print(invalid_id)
 
 def delete_all_task():
-    for i in ["JP"]:
+    for i in ["US"]:
         result_task = GetAmazonKWMStatus(
             station=i,
-            capture_status=2,
+            capture_status=0,
             # ids=[j for j in range(265900,26600)],
             # ids=["265984"]
         ).request()
