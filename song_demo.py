@@ -10,7 +10,7 @@ from sqlalchemy.dialects.mysql import insert
 
 from HY_keyword import TOPIC_NAME
 from amazon_keyword.worker import KeywordTaskInfo
-from api.amazon_keyword import GetAmazonKWMStatus, AddAmazonKWM, GetAmazonKWMAllResult, GetAmazonKWMResult
+from api.amazon_keyword import GetAmazonKWMStatus, AddAmazonKWM, GetAmazonKWMAllResult, GetAmazonKWMResult, DelAmazonKWM
 from models.amazon_models import amazon_keyword_task
 from task_protocol import HYTask
 from sqlalchemy import  select
@@ -185,16 +185,24 @@ def db_classification_invalid():
         print(invalid_id)
 
 def delete_all_task():
-    # for i in ["US", "UK", "DE", "FR", "JP", "IT", "ES", "CA", "AU"]:
+    for i in ["US"]:
+        result_task = GetAmazonKWMStatus(
+            station=i,
+            capture_status=0,
+            # ids=[j for j in range(265900,26600)],
+            # ids=["265984"]
+        ).request()
+        if result_task:
+            print(result_task)
+            list_id = [get_id["id"] for get_id in result_task["result"]["list"]]
+            print("delete_all_id", list_id,len(list_id))
+            for j in list_id:
+                del_id = DelAmazonKWM(
+                    ids=[i]
+                ).request()
+                print(del_id)
 
-    result_task = GetAmazonKWMStatus(
-        station="US",
-        capture_status=0,
-        # ids=[j for j in range(265900,26600)],
-        # ids=["265984"]
-    ).request()
-    list_id = [get_id["id"] for get_id in result_task["result"]["list"]]
-    print("delete_all_id", list_id,len(list_id))
+
     # # print(result_task)
     # with engine.connect() as conn:
     #     for total_task in result_task['result']['list']:
@@ -220,17 +228,17 @@ def delete_all_task():
     #             is_effect=insert_stmt.inserted.is_effect,
     #         )
     #         conn.execute(onduplicate_key_stmt, infos)
-def test_params(status):
-    if status == "jobs":
-        print("bingo")
+# def test_params(status):
+#     if status == "jobs":
+#         print("bingo")
 
-def update_db():
-    with engine.connect() as conn:
-        kar1 = KeywordTaskInfo()
-        kar = kar1.parse()
-        conn.execute(amazon_keyword_task.update().values(fullname=kar))
-
+# def update_db():
+#     with engine.connect() as conn:
+#         kar1 = KeywordTaskInfo()
+#         kar = kar1.parse()
+#         conn.execute(amazon_keyword_task.update().values(fullname=kar))
+#
 
 
 if __name__ == '__main__':
-    test_params("jobs")
+    delete_all_task()

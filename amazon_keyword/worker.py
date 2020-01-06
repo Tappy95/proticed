@@ -42,7 +42,7 @@ class KeywordTaskInfo:
     def __init__(self):
         self.time_now = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
 
-    def parse(self, info):
+    def parse(self, info, status):
         parsed_info = {
             "id": info["id"],
             "asin": info["asin"],
@@ -69,12 +69,12 @@ class KeywordTaskInfo:
                 or info["capture_status"] == 6:
             parsed_info["is_effect"] = 0
 
-        # if status == "add_task":
-        #     parsed_info["last_update"] = self.time_now
-        #     parsed_info["update_time"] = self.time_now
-        # elif status == "update_task":
-        #     parsed_info["update_time"] = self.time_now
-        #     del parsed_info["last_update"]
+        if status == "add_task":
+            parsed_info["last_update"] = self.time_now
+            parsed_info["update_time"] = self.time_now
+        elif status == "update_task":
+            parsed_info["update_time"] = self.time_now
+            del parsed_info["last_update"]
 
         return parsed_info
 
@@ -96,7 +96,35 @@ class KeywordRankInfo:
         return parsed_info
 
 
-def task_db(result_task, status):
+def update_task_db(result_task, status):
+    if result_task['msg'] == "success":
+        with engine.connect() as conn:
+            total_task = result_task['result']['list'][0]
+            keyword_taskinfo = KeywordTaskInfo()
+            infos = keyword_taskinfo.parse(total_task, status)
+            insert_stmt = insert(amazon_keyword_task)
+            onduplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+                id=insert_stmt.inserted.id,
+                asin=insert_stmt.inserted.asin,
+                keyword=insert_stmt.inserted.keyword,
+                status=insert_stmt.inserted.status,
+                monitoring_num=insert_stmt.inserted.monitoring_num,
+                monitoring_count=insert_stmt.inserted.monitoring_count,
+                monitoring_type=insert_stmt.inserted.monitoring_type,
+                station=insert_stmt.inserted.station,
+                start_time=insert_stmt.inserted.start_time,
+                end_time=insert_stmt.inserted.end_time,
+                created_at=insert_stmt.inserted.created_at,
+                deleted_at=insert_stmt.inserted.deleted_at,
+                is_add=insert_stmt.inserted.start_time,
+                capture_status=insert_stmt.inserted.capture_status,
+                is_effect=insert_stmt.inserted.is_effect,
+                update_time=insert_stmt.inserted.update_time,
+            )
+            conn.execute(onduplicate_key_stmt, infos)
+
+
+def add_task_db(result_task, status):
     if result_task['msg'] == "success":
         with engine.connect() as conn:
             total_task = result_task['result']['list'][0]
@@ -130,7 +158,7 @@ def handle(group, task):
     site = hy_task.task_data['site']
     asin = hy_task.task_data['asin']
     keyword = hy_task.task_data['keyword']
-
+    print(site,asin,keyword)
     # 查有效任务并对比
     with engine.connect() as conn:
         select_tasks = conn.execute(select([
@@ -154,13 +182,15 @@ def handle(group, task):
                 num_of_days=NUM_OF_DAYS,
                 monitoring_num=MONITORING_NUM,
             ).request()
+            print(result_newtask)
             if result_newtask and result_newtask["msg"] == "success":
                 get_id = result_newtask['result'][0]["id"]
                 result_task = GetAmazonKWMStatus(
                     station=site,
                     ids=[get_id],
                 ).request()
-                task_db(result_task, "add_task")
+                print(result_task)
+                add_task_db(result_task, "add_task")
 
 
 async def get_result():
@@ -218,7 +248,7 @@ async def maintain_task():
                     station=one_task['station'],
                     ids=[one_task['id']]
                 ).request()
-                task_db(result_task, "update_task")
+                update_task_db(result_task, "update_task")
 
             # 远程删除HY所有无效task,并添加新task
             max_time = datetime.now() + timedelta(days=5)
@@ -260,7 +290,7 @@ async def maintain_task():
                                     station=invalid_data['station'],
                                     ids=[one_task['id']],
                                 ).request()
-                                task_db(result_task, "add_task")
+                                add_task_db(result_task, "add_task")
 
 
 def run():
@@ -271,10 +301,9 @@ def run():
     group.set_handle(handle)
     group.add_input_endpoint('input', input_end)
 
-    server.add_routine_worker(maintain_task, interval=10, immediately=True)
-    server.add_routine_worker(get_result, interval=60, immediately=True)
+    # server.add_routine_worker(maintain_task, interval=10, immediately=True)
+    # server.add_routine_worker(get_result, interval=60, immediately=True)
     server.run()
-
 
 if __name__ == '__main__':
     run()
