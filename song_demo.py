@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 import nsq
 import tornado.ioloop
-from sqlalchemy import create_engine, or_
+from sqlalchemy import create_engine, or_, update
 from sqlalchemy.dialects.mysql import insert
 
 from HY_keyword import TOPIC_NAME
@@ -223,6 +223,13 @@ def delete_all_task():
 def test_params(status):
     if status == "jobs":
         print("bingo")
+
+def update_db():
+    with engine.connect() as conn:
+        kar1 = KeywordTaskInfo()
+        kar = kar1.parse()
+        conn.execute(amazon_keyword_task.update().values(fullname=kar))
+
 
 
 if __name__ == '__main__':

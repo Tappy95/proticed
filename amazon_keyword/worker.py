@@ -42,7 +42,7 @@ class KeywordTaskInfo:
     def __init__(self):
         self.time_now = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
 
-    def parse(self, info, status):
+    def parse(self, info):
         parsed_info = {
             "id": info["id"],
             "asin": info["asin"],
@@ -69,12 +69,12 @@ class KeywordTaskInfo:
                 or info["capture_status"] == 6:
             parsed_info["is_effect"] = 0
 
-        if status == "add_task":
-            parsed_info["last_update"] = self.time_now
-            parsed_info["update_time"] = self.time_now
-        elif status == "update_task":
-            parsed_info["update_time"] = self.time_now
-            del parsed_info["last_update"]
+        # if status == "add_task":
+        #     parsed_info["last_update"] = self.time_now
+        #     parsed_info["update_time"] = self.time_now
+        # elif status == "update_task":
+        #     parsed_info["update_time"] = self.time_now
+        #     del parsed_info["last_update"]
 
         return parsed_info
 
