@@ -1,3 +1,4 @@
+import logging
 import operator
 from datetime import datetime, timedelta
 
@@ -154,6 +155,7 @@ def add_task_db(result_task, status):
 
 
 def handle(group, task):
+    # 接受任务类型,任务数据,
     hy_task = HYTask(task)
     site = hy_task.task_data['site']
     asin = hy_task.task_data['asin']
@@ -301,9 +303,7 @@ def run():
     group.set_handle(handle)
     group.add_input_endpoint('input', input_end)
 
-    # server.add_routine_worker(maintain_task, interval=10, immediately=True)
-    # server.add_routine_worker(get_result, interval=60, immediately=True)
+    server.add_routine_worker(maintain_task, interval=10, immediately=True)
+    server.add_routine_worker(get_result, interval=60, immediately=True)
     server.run()
 
-if __name__ == '__main__':
-    run()

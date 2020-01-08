@@ -36,7 +36,7 @@ def getstatus():
     # with engine.connect() as conn:
     #     result_from_db = select(([amazon_keyword_task]))
     #     conn.execute()
-    result = GetAmazonKWMStatus('JP',6,[234624],).request()
+    result = GetAmazonKWMStatus('JP', 6, [234624],).request()
     print(result,"getstatus")
 
 
@@ -241,4 +241,4 @@ def delete_all_task():
 
 
 if __name__ == '__main__':
-    delete_all_task()
+    getstatus()

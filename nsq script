@@ -8,6 +8,55 @@ ps -ef | grep nsq| grep -v grep | awk '{print $2}' | xargs kill -2
 
 # curl task
 curl -d 'hello world 2' 'http://127.0.0.1:4151/pub?topic=test'
-curl -d '{"task": "amazon_keyword_sync", "data": {"site": "US","asin": "B013WC0P2A","keyword": "vmpire"}}' 'http://134.73.133.2:25751/pub?topic=haiying.amazon.keyword'
-curl -d '{"task": "amazon_keyword_sync", "data": {"site": "US","asin": "B00FRFRZF6","keyword": "milk"}}' 'http://bd-nsqd:4151/pub?topic=haiying.amazon.keyword'
+# 有效
+curl -d '{
+            "task": "amazon_keyword_sync",
+            "data": {
+                "site": "US",
+                "asin": "B00FRFRZF6",
+                "keyword": "cduibi"
+            }
+         }' 'http://134.73.133.2:25751/pub?topic=haiying.amazon.keyword'
+curl -d '{
+            "task": "amazon_keyword_sync",
+            "data": {
+                "site": "US",
+                "asin": "B00FRFRZF6",
+                "keyword": "milk"
+                }
+        }' 'http://bd-nsqd:4151/pub?topic=haiying.amazon.keyword'
 curl -d '{"task": "amazon_keyword_sync", "data": {"site": "US","asin": ["B07W2VV29T"],"keyword": "computer"}}' 'http://47.102.220.1:4151/pub?topic=haiying.amazon.keyword'
+
+
+curl -d '{"task": "amazon_keyword", "data": {"platform": "amazon_us","keyword":"he","asin": "B00FRFRZF6"}}' 'http://134.73.133.2:25751/pub?topic=task.amazon'
+
+
+# 无效
+curl -d '{
+            "task": "amazon_keyword_sync",
+            "data": {
+                "site": "US",
+                "asin": "B00FRFRZF6",
+                "keyword": "cduibi2",
+            }
+         }' 'http://134.73.133.2:25751/pub?topic=haiying.amazon.keyword'
+
+# 有效
+curl -d '{
+            "task": "amazon_keyword",
+            "data": {
+                "platform": "amazon_us",
+                "keyword":"vitual_crawler",
+                "asin": "B00FRFRZF6"
+            }
+        }' 'http://134.73.133.2:25751/pub?topic=task.amazon'
+
+# 有效
+curl -d '{
+            "task": "amazon_keyword",
+            "data": {
+                "platform": "amazon_us",
+                "keyword":"harypoter",
+                "asin": "B017V4IMVQ"
+            }
+         }' 'http://bd-nsqd:4151/pub?topic=task.amazon'
