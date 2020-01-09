@@ -79,7 +79,7 @@ def getkwrank():
     print(b)
     result =  GetAmazonKWMResult(
         # ids = [x for x in range(234615,234630)],
-        ids=[266213],
+        ids=[301423],
         start_time=b,
         end_time=a,
         # start_time='1',
@@ -241,4 +241,4 @@ def delete_all_task():
 
 
 if __name__ == '__main__':
-    getstatus()
+    getkwrank()
