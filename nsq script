@@ -12,9 +12,9 @@ curl -d 'hello world 2' 'http://127.0.0.1:4151/pub?topic=test'
 curl -d '{
             "task": "amazon_keyword_sync",
             "data": {
-                "site": "US",
-                "asin": "B00FRFRZF6",
-                "keyword": "cduibi"
+                "site": "us",
+                "asin": "B0085SN7J0",
+                "keyword": "chocolate"
             }
          }' 'http://134.73.133.2:25751/pub?topic=haiying.amazon.keyword'
 curl -d '{
@@ -46,8 +46,8 @@ curl -d '{
             "task": "amazon_keyword",
             "data": {
                 "platform": "amazon_us",
-                "keyword":"vitual_crawler",
-                "asin": "B00FRFRZF6"
+                "keyword":"de acero inoxidable",
+                "asin": "B01F8LX9NU"
             }
         }' 'http://134.73.133.2:25751/pub?topic=task.amazon'
 
@@ -56,7 +56,7 @@ curl -d '{
             "task": "amazon_keyword",
             "data": {
                 "platform": "amazon_us",
-                "keyword":"harypoter",
-                "asin": "B017V4IMVQ"
+                "keyword":"iphoneoneoneone",
+                "asin": "B07HB1DZGD"
             }
          }' 'http://bd-nsqd:4151/pub?topic=task.amazon'
