@@ -17,17 +17,7 @@ search_info = {
 for i in search_info['query']['bool']['filter']:
     if "range" in i:
         if "price" in i['range']:
-            pass
+            print(i['range']['price'])
 
 
 
-class menmen():
-
-    @staticmethod
-    def koko(info):
-        print(info)
-
-
-
-M = menmen()
-M.koko("koko")
