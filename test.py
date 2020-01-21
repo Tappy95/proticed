@@ -1,23 +1,6 @@
-search_info = {
-    "from": 0,
-    "size": 64,
-    "query": {
-        "bool": {
-            "filter": [
-                {"term": {"site": "us"}},
-                {"range": {"price": {
-                    "gte": 0,
-                    "lte": 99999999,
-                }}}
-            ]
-        }
-    }
-}
+from datetime import datetime, timedelta
 
-for i in search_info['query']['bool']['filter']:
-    if "range" in i:
-        if "price" in i['range']:
-            print(i['range']['price'])
-
-
+time_utc = "2020-01-06T16:00:00.000Z"
+date = datetime.strptime(time_utc, '%Y-%m-%dT%H:%M:%S.%fZ') + timedelta(hours=8)
+print(date)
 
