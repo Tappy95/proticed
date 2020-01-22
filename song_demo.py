@@ -13,7 +13,7 @@ from amazon_keyword.worker import KeywordTaskInfo
 from api.amazon_keyword import GetAmazonKWMStatus, AddAmazonKWM, GetAmazonKWMAllResult, GetAmazonKWMResult, DelAmazonKWM
 from models.amazon_models import amazon_keyword_task
 from task_protocol import HYTask
-from sqlalchemy import  select
+from sqlalchemy import select
 from config import *
 from util.pub import pub_to_nsq
 
@@ -32,22 +32,24 @@ engine = create_engine(
     pool_recycle=SQLALCHEMY_POOL_RECYCLE,
 )
 
+
 def getstatus():
     # with engine.connect() as conn:
     #     result_from_db = select(([amazon_keyword_task]))
     #     conn.execute()
     result = GetAmazonKWMStatus(ids=[305102]).request()
-    print(result,"getstatus")
+    print(result, "getstatus")
 
 
 def addmonkwasins():
     result = AddAmazonKWM(
-        station = 'US',
-        asin_and_keywords =[{"asin":"B07PY52GVP","keyword":"XiaoMi"}],
-        num_of_days = 31,
-        monitoring_num = 24,
+        station='US',
+        asin_and_keywords=[{"asin": "B07PY52GVP", "keyword": "XiaoMi"}],
+        num_of_days=31,
+        monitoring_num=24,
     ).request()
-    print(result,"add_a_kw_watch")
+    print(result, "add_a_kw_watch")
+
 
 def getallresult():
     with engine.connect() as conn:
@@ -56,11 +58,12 @@ def getallresult():
     ids = [x for x in idss]
     result = GetAmazonKWMStatus(
         station='US',
-        capture_status = '6',
-        ids = ids
+        capture_status='6',
+        ids=ids
 
     ).request()
     print(result)
+
 
 def getallkwasin():
     result = GetAmazonKWMAllResult(
@@ -68,16 +71,18 @@ def getallkwasin():
     ).request()
     print(result)
 
+
 class add_crawler():
     def __init__(self, ):
         pass
+
 
 def getkwrank():
     a = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
     print(a)
     b = (datetime.now().replace(microsecond=0) - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
     print(b)
-    result =  GetAmazonKWMResult(
+    result = GetAmazonKWMResult(
         # ids = [x for x in range(234615,234630)],
         ids=[305102],
         start_time=b,
@@ -88,25 +93,23 @@ def getkwrank():
     print(result)
 
 
-
-
 def map_test(info):
     parsed_info = {
-                "id": info["id"],
-                "asin": info["asin"],
-                "keyword": info["keyword"],
-                "status": info["status"],
-                "monitoring_num": info["monitoring_num"],
-                "monitoring_count": info["monitoring_count"],
-                "monitoring_type": info["monitoring_type"],
-                "station": info["station"],
-                "start_time": info["start_time"],
-                "end_time": info["end_time"],
-                "created_at": info["created_at"],
-                "deleted_at": info["deleted_at"],
-                "is_add": 1,
-                "last_update": datetime.now(),
-            }
+        "id": info["id"],
+        "asin": info["asin"],
+        "keyword": info["keyword"],
+        "status": info["status"],
+        "monitoring_num": info["monitoring_num"],
+        "monitoring_count": info["monitoring_count"],
+        "monitoring_type": info["monitoring_type"],
+        "station": info["station"],
+        "start_time": info["start_time"],
+        "end_time": info["end_time"],
+        "created_at": info["created_at"],
+        "deleted_at": info["deleted_at"],
+        "is_add": 1,
+        "last_update": datetime.now(),
+    }
     return list(map(parsed_info, info))
 
 
@@ -116,21 +119,23 @@ def map_test(info):
 
 def db():
     with engine.connect() as conn:
-        select_task = select([amazon_keyword_task])\
+        select_task = select([amazon_keyword_task]) \
             .where(
             or_(
-                    amazon_keyword_task.c.monitoring_count ==12,
-                    amazon_keyword_task.c.station != 'US',
+                amazon_keyword_task.c.monitoring_count == 12,
+                amazon_keyword_task.c.station != 'US',
             )
         )
         select_db = conn.execute(select_task).fetchall()
         for one in select_db:
-            print(one['monitoring_count'],one['station'])
-            interval_db =  one['end_time'] - datetime.now()
+            print(one['monitoring_count'], one['station'])
+            interval_db = one['end_time'] - datetime.now()
             print(interval_db)
             # if interval_db < timedelta(days=5):
             #     print(one['end_time'])
             #     print(datetime.now() - one['last_update'])
+
+
 def db_classification_invalid():
     with engine.connect() as conn:
         select_effect_task = conn.execute((select([
@@ -146,7 +151,6 @@ def db_classification_invalid():
     print(select_effect_task)
 
 
-
 def db_classification_effect():
     with engine.connect() as conn:
         select_effect_task = conn.execute((select([
@@ -157,7 +161,7 @@ def db_classification_effect():
         effect_id = []
     for one in select_effect_task:
         # 距离任务结束大于五天
-        if one['end_time'] - datetime.now() > timedelta(days=5)\
+        if one['end_time'] - datetime.now() > timedelta(days=5) \
                 and one['capture_status'] != 3:
             effect_id.append(one['id'])
     return effect_id
@@ -177,31 +181,33 @@ def db_classification_invalid():
         invalid_id = []
         for row in select_invalid_task:
             # 装态为已删除,任务结束时间不足五天,超过四天未更新(最小频率为四天一次)
-            if row['capture_status'] ==6 or \
-                row['deleted_at'] is not None or\
-                    (row['end_time'] - datetime.now()) <timedelta(days=5) or \
+            if row['capture_status'] == 6 or \
+                    row['deleted_at'] is not None or \
+                    (row['end_time'] - datetime.now()) < timedelta(days=5) or \
                     datetime.now() - row['last_update'] > timedelta(days=4):
                 invalid_id.append(row['id'])
         print(invalid_id)
 
+
 def delete_all_task():
-    for i in ["US"]:
+    for i in ["US", "UK", "DE", "FR", "JP", "IT", "ES", "CA", "AU"]:
         result_task = GetAmazonKWMStatus(
             station=i,
             capture_status=0,
             # ids=[j for j in range(265900,26600)],
             # ids=["265984"]
         ).request()
-        if result_task:
-            print(result_task)
+        if result_task['result']:
+            k = 0
             list_id = [get_id["id"] for get_id in result_task["result"]["list"]]
-            print("delete_all_id", list_id,len(list_id))
             for j in list_id:
-                del_id = DelAmazonKWM(
-                    ids=[j]
-                ).request()
-                print(del_id)
-
+                k += 1
+            print(i, "task_count",k,"capture_status = 0")
+            # for j in list_id:
+            #     del_id = DelAmazonKWM(
+            #         ids=[j]
+            #     ).request()
+            #     print(del_id)
 
     # # print(result_task)
     # with engine.connect() as conn:
@@ -228,6 +234,8 @@ def delete_all_task():
     #             is_effect=insert_stmt.inserted.is_effect,
     #         )
     #         conn.execute(onduplicate_key_stmt, infos)
+
+
 # def test_params(status):
 #     if status == "jobs":
 #         print("bingo")
@@ -241,4 +249,4 @@ def delete_all_task():
 
 
 if __name__ == '__main__':
-    getstatus()
+    addmonkwasins()

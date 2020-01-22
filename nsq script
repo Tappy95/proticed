@@ -56,7 +56,7 @@ curl -d '{
             "task": "amazon_keyword",
             "data": {
                 "platform": "amazon_us",
-                "keyword":"iphoneoneoneone",
-                "asin": "B07HB1DZGD"
+                "keyword":"door stopper wall",
+                "asin": "B07VVLXYCB"
             }
          }' 'http://bd-nsqd:4151/pub?topic=task.amazon'
