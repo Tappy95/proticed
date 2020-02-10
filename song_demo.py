@@ -52,17 +52,20 @@ def addmonkwasins():
 
 
 def getallresult():
-    with engine.connect() as conn:
-        idss = conn.execute(select([amazon_keyword_task.c.id])).fetchall()
-    print(idss)
-    ids = [x for x in idss]
+    # with engine.connect() as conn:
+    #     idss = conn.execute(select([amazon_keyword_task.c.id])).fetchall()
+    # print(idss)
+    # ids = [x for x in idss]
     result = GetAmazonKWMStatus(
-        station='US',
-        capture_status='6',
-        ids=ids
+        # station='US',
+        capture_status='4',
+        # ids=ids
 
     ).request()
-    print(result)
+    print(result['result']['total'])
+    with engine.connect() as conn:
+
+        conn.execute(amazon_keyword_task.insert(), [{'id': value['id'],'is_effect': 1} for value in result['result']['list']])
 
 
 def getallkwasin():
@@ -249,4 +252,4 @@ def delete_all_task():
 
 
 if __name__ == '__main__':
-    addmonkwasins()
+    getallresult()
