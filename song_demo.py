@@ -37,7 +37,7 @@ def getstatus():
     # with engine.connect() as conn:
     #     result_from_db = select(([amazon_keyword_task]))
     #     conn.execute()
-    result = GetAmazonKWMStatus(ids=[305102]).request()
+    result = GetAmazonKWMStatus(ids=[424945]).request()
     print(result, "getstatus")
 
 
@@ -55,18 +55,18 @@ def getallresult():
     # with engine.connect() as conn:
     #     idss = conn.execute(select([amazon_keyword_task.c.id])).fetchall()
     # print(idss)
-    # ids = [x for x in idss]
+    ids = [424945]
     result = GetAmazonKWMStatus(
         # station='US',
-        capture_status='4',
-        # ids=ids
+        # capture_status='4',
+        ids=ids
 
     ).request()
-    print(result['result']['total'])
-    with engine.connect() as conn:
-
-        conn.execute(amazon_keyword_task.insert(), [{'id': value['id'],'is_effect': 1} for value in result['result']['list']])
-
+    # print(result['result']['total'])
+    # with engine.connect() as conn:
+    #
+    #     conn.execute(amazon_keyword_task.insert(), [{'id': value['id'],'is_effect': 1} for value in result['result']['list']])
+    print(result)
 
 def getallkwasin():
     result = GetAmazonKWMAllResult(
@@ -83,11 +83,11 @@ class add_crawler():
 def getkwrank():
     a = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
     print(a)
-    b = (datetime.now().replace(microsecond=0) - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
+    b = (datetime.now().replace(microsecond=0) - timedelta(days=20)).strftime('%Y-%m-%d %H:%M:%S')
     print(b)
     result = GetAmazonKWMResult(
         # ids = [x for x in range(234615,234630)],
-        ids=[305102],
+        ids=[424947],
         start_time=b,
         end_time=a,
         # start_time='1',
@@ -193,10 +193,21 @@ def db_classification_invalid():
 
 
 def delete_all_task():
-    for i in ["US", "UK", "DE", "FR", "JP", "IT", "ES", "CA", "AU"]:
+    # with engine.connect() as conn:
+    #     select_invalid_task = conn.execute(select([
+    #         amazon_keyword_task.c.id,
+    #     ]).where(
+    #         amazon_keyword_task.c.station == "ge"
+    #     )
+    #         ).fetchall()
+    #     print(select_invalid_task)
+
+
+
+    for i in ["DE"]:
         result_task = GetAmazonKWMStatus(
             station=i,
-            capture_status=0,
+            # capture_status=0,
             # ids=[j for j in range(265900,26600)],
             # ids=["265984"]
         ).request()
@@ -205,7 +216,8 @@ def delete_all_task():
             list_id = [get_id["id"] for get_id in result_task["result"]["list"]]
             for j in list_id:
                 k += 1
-            print(i, "task_count",k,"capture_status = 0")
+            # print(i, "task_count",k,"capture_status = 0")
+            print(result_task['result'])
             # for j in list_id:
             #     del_id = DelAmazonKWM(
             #         ids=[j]
@@ -252,4 +264,4 @@ def delete_all_task():
 
 
 if __name__ == '__main__':
-    getallresult()
+    delete_all_task()
