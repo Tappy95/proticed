@@ -12,7 +12,7 @@ curl -d 'hello world 2' 'http://127.0.0.1:4151/pub?topic=test'
 curl -d '{
             "task": "amazon_keyword_sync",
             "data": {
-                "site": "us",
+                "site": "de",
                 "asin": "B0085SN7J0",
                 "keyword": "chocolate"
             }
@@ -55,7 +55,7 @@ curl -d '{
 curl -d '{
             "task": "amazon_keyword",
             "data": {
-                "platform": "amazon_us",
+                "platform": "amazon_de",
                 "keyword":"door stopper wall",
                 "asin": "B07VVLXYCB"
             }

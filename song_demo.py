@@ -68,6 +68,7 @@ def getallresult():
     #     conn.execute(amazon_keyword_task.insert(), [{'id': value['id'],'is_effect': 1} for value in result['result']['list']])
     print(result)
 
+
 def getallkwasin():
     result = GetAmazonKWMAllResult(
         station='US',
@@ -201,28 +202,30 @@ def delete_all_task():
     #     )
     #         ).fetchall()
     #     print(select_invalid_task)
+    count = 0
+    for i in ["DE", "US", "UK", "FR", "JP", "IT", "ES", "CA", "AU"]:
 
-
-
-    for i in ["DE"]:
         result_task = GetAmazonKWMStatus(
             station=i,
             # capture_status=0,
             # ids=[j for j in range(265900,26600)],
             # ids=["265984"]
         ).request()
+
         if result_task['result']:
+            count += int(result_task['result']['total'])
             k = 0
             list_id = [get_id["id"] for get_id in result_task["result"]["list"]]
             for j in list_id:
                 k += 1
-            # print(i, "task_count",k,"capture_status = 0")
-            print(result_task['result'])
-            # for j in list_id:
-            #     del_id = DelAmazonKWM(
-            #         ids=[j]
-            #     ).request()
-            #     print(del_id)
+    print(count)
+    # print(i, "task_count",k,"capture_status = 0")
+    # print(result_task['result'])
+    # for j in list_id:
+    #     del_id = DelAmazonKWM(
+    #         ids=[j]
+    #     ).request()
+    #     print(del_id)
 
     # # print(result_task)
     # with engine.connect() as conn:
