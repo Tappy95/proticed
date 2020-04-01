@@ -1,0 +1,4 @@
+curl http://172.19.1.169:8000/ebay
+curl http://10.0.1.35:8000/ebay
+curl http://ebay-analysis-web:8000/ebay/category
+curl http://10.0.1.35:8000/ebay/category
