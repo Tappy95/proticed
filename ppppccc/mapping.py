@@ -1,242 +1,237 @@
 # product
 product = {
-    "mappings": {
-        "properties": {
-            "date": {
-                "type": "date",
-                "index": false
-            },
-            "seller": {
-                "type": "keyword",
-                "fields": {
-                    "completion": {
-                        "type": "completion",
-                        "analyzer": "standard"
-                    }
-                }
-            },
-            "sold_last_1_pop": {
-                "type": "float"
-            },
-            "item_location_country": {
-                "type": "keyword"
-            },
-            "sold_6_to_last": {
-                "type": "long",
-                "index": false
-            },
-            "gmv_last_1_pop": {
-                "type": "float"
-            },
-            "item_location": {
-                "type": "keyword",
-                "index": false
-            },
-            "price": {
-                "type": "float"
-            },
-            "brand": {
-                "type": "keyword",
-                "fields": {
-                    "completion": {
-                        "type": "completion",
-                        "analyzer": "standard"
-                    }
-                }
-            },
-            "category_path": {
-                "type": "text",
-                "fields": {
-                    "completion": {
-                        "type": "completion",
-                        "analyzer": "standard"
-                    }
-                }
-            },
-            "pre_gmv_last_7": {
-                "type": "double",
-                "index": false
-            },
-            "sold_last_1": {
-                "type": "long"
-            },
-            "marketplace": {
-                "type": "keyword",
-                "index": false
-            },
-            "sold_last_3": {
-                "type": "long"
-            },
-            "sold_last_7": {
-                "type": "long"
-            },
-            "pre_gmv_last_1": {
-                "type": "double",
-                "index": false
-            },
-            "pre_gmv_last_3": {
-                "type": "double",
-                "index": false
-            },
-            "visit_last_3": {
-                "type": "long",
-                "index": false
-            },
-            "visit_last_1": {
-                "type": "long",
-                "index": false
-            },
-            "sold_2_to_last": {
-                "type": "long",
-                "index": false
-            },
-            "sold_4_to_last": {
-                "type": "long",
-                "index": false
-            },
-            "sold_7_to_last": {
-                "type": "long",
-                "index": false
-            },
-            "gmv_2_to_last": {
-                "type": "double",
-                "index": false
-            },
-            "gmv_3_to_last": {
-                "type": "double",
-                "index": false
-            },
-            "gmv_4_to_last": {
-                "type": "double",
-                "index": false
-            },
-            "gmv_5_to_last": {
-                "type": "double",
-                "index": false
-            },
-            "gmv_6_to_last": {
-                "type": "double",
-                "index": false
-            },
-            "gmv_7_to_last": {
-                "type": "double",
-                "index": false
-            },
-            "img": {
-                "type": "keyword",
-                "index": false
-            },
-            "new_last_1": {
-                "type": "long",
-                "index": false
-            },
-            "gen_time": {
-                "type": "date"
-            },
-            "new_last_3": {
-                "type": "long",
-                "index": false
-            },
-            "title": {
-                "type": "text",
-                "fields": {
-                    "completion": {
-                        "type": "completion"
-                    }
-                }
-            },
-            "visit_last_7": {
-                "type": "long",
-                "index": false
-            },
-            "new_last_7": {
-                "type": "long",
-                "index": false
-            },
-            "sold_total": {
-                "type": "long",
-                "index": false
-            },
-            "update_time": {
-                "type": "date",
-                "index": false
-            },
-            "sold_last_7_pop": {
-                "type": "float"
-            },
-            "category_id": {
-                "type": "keyword"
-            },
-            "gmv_last_1": {
-                "type": "double"
-            },
-            "gmv_last_7_pop": {
-                "type": "float"
-            },
-            "gmv_last_3": {
-                "type": "double"
-            },
-            "popular": {
-                "type": "boolean",
-                "index": false
-            },
-            "store_location": {
-                "type": "keyword"
-            },
-            "gmv_last_7": {
-                "type": "double"
-            },
-            "item_id": {
-                "type": "keyword"
-            },
-            "pre_sold_last_1": {
-                "type": "long",
-                "index": false
-            },
-            "sold_last_3_pop": {
-                "type": "float"
-            },
-            "pre_sold_last_3": {
-                "type": "long",
-                "index": false
-            },
-            "gmv_last_3_pop": {
-                "type": "float"
-            },
-            "store": {
-                "type": "keyword"
-            },
-            "pre_sold_last_7": {
-                "type": "long",
-                "index": false
-            },
-            "data_update_time": {
-                "type": "date",
-                "index": false
-            },
-            "site": {
-                "type": "keyword"
-            },
-            "@timestamp": {
-                "type": "date"
-            },
-            "leaf_category_id": {
-                "type": "keyword"
-            },
-            "sold_3_to_last": {
-                "type": "long",
-                "index": false
-            },
-            "visit_total": {
-                "type": "long",
-                "index": false
-            },
-            "sold_5_to_last": {
-                "type": "long",
-                "index": false
-            }
+  "properties": {
+    "date": {
+      "index": false,
+      "type": "date"
+    },
+    "seller": {
+      "type": "keyword",
+      "fields": {
+        "completion": {
+          "analyzer": "standard",
+          "type": "completion"
         }
+      }
+    },
+    "sold_last_1_pop": {
+      "type": "float"
+    },
+    "item_location_country": {
+      "type": "keyword"
+    },
+    "gmv_2_to_last": {
+      "index": false,
+      "type": "double"
+    },
+    "sold_6_to_last": {
+      "index": false,
+      "type": "long"
+    },
+    "gmv_4_to_last": {
+      "index": false,
+      "type": "double"
+    },
+    "gmv_6_to_last": {
+      "index": false,
+      "type": "double"
+    },
+    "gmv_last_1_pop": {
+      "type": "float"
+    },
+    "item_location": {
+      "index": false,
+      "type": "keyword"
+    },
+    "price": {
+      "type": "float"
+    },
+    "brand": {
+      "type": "keyword",
+      "fields": {
+        "completion": {
+          "analyzer": "standard",
+          "type": "completion"
+        }
+      }
+    },
+    "pre_gmv_last_7": {
+      "index": false,
+      "type": "double"
+    },
+    "sold_last_1": {
+      "type": "long"
+    },
+    "marketplace": {
+      "index": false,
+      "type": "keyword"
+    },
+    "sold_last_3": {
+      "type": "long"
+    },
+    "sold_last_7": {
+      "type": "long"
+    },
+    "pre_gmv_last_1": {
+      "index": false,
+      "type": "double"
+    },
+    "pre_gmv_last_3": {
+      "index": false,
+      "type": "double"
+    },
+    "visit_last_3": {
+      "index": false,
+      "type": "long"
+    },
+    "visit_last_1": {
+      "index": false,
+      "type": "long"
+    },
+    "sold_2_to_last": {
+      "index": false,
+      "type": "long"
+    },
+    "sold_4_to_last": {
+      "index": false,
+      "type": "long"
+    },
+    "sold_7_to_last": {
+      "index": false,
+      "type": "long"
+    },
+    "img": {
+      "index": false,
+      "type": "keyword"
+    },
+    "new_last_1": {
+      "type": "long"
+    },
+    "gen_time": {
+      "type": "date"
+    },
+    "gmv_5_to_last": {
+      "index": false,
+      "type": "double"
+    },
+    "new_last_3": {
+      "type": "long"
+    },
+    "title": {
+      "type": "text",
+      "fields": {
+        "completion": {
+          "type": "completion"
+        }
+      }
+    },
+    "visit_last_7": {
+      "index": false,
+      "type": "long"
+    },
+    "new_last_7": {
+      "type": "long"
+    },
+    "gmv_7_to_last": {
+      "index": false,
+      "type": "double"
+    },
+    "sold_total": {
+      "index": false,
+      "type": "long"
+    },
+    "update_time": {
+      "index": false,
+      "type": "date"
+    },
+    "sold_last_7_pop": {
+      "type": "float"
+    },
+    "category_id": {
+      "type": "keyword"
+    },
+    "gmv_last_1": {
+      "type": "double"
+    },
+    "gmv_last_7_pop": {
+      "type": "float"
+    },
+    "gmv_last_3": {
+      "type": "double"
+    },
+    "popular": {
+      "index": false,
+      "type": "boolean"
+    },
+    "store_location": {
+      "type": "keyword"
+    },
+    "gmv_last_7": {
+      "type": "double"
+    },
+    "item_id": {
+      "type": "keyword"
+    },
+    "pre_sold_last_1": {
+      "index": false,
+      "type": "long"
+    },
+    "sold_last_3_pop": {
+      "type": "float"
+    },
+    "pre_sold_last_3": {
+      "index": false,
+      "type": "long"
+    },
+    "gmv_last_3_pop": {
+      "type": "float"
+    },
+    "store": {
+      "type": "keyword"
+    },
+    "pre_sold_last_7": {
+      "index": false,
+      "type": "long"
+    },
+    "data_update_time": {
+      "index": false,
+      "type": "date"
+    },
+    "site": {
+      "type": "keyword"
+    },
+    "@timestamp": {
+      "type": "date"
+    },
+    "category_path": {
+      "type": "text",
+      "fields": {
+        "completion": {
+          "analyzer": "standard",
+          "type": "completion"
+        }
+      }
+    },
+    "leaf_category_id": {
+      "type": "keyword"
+    },
+    "sold_3_to_last": {
+      "index": false,
+      "type": "long"
+    },
+    "visit_total": {
+      "index": false,
+      "type": "long"
+    },
+    "sold_5_to_last": {
+      "index": false,
+      "type": "long"
+    },
+    "gmv_3_to_last": {
+      "index": false,
+      "type": "double"
     }
+  }
 }
 
 # category

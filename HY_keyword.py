@@ -13,7 +13,6 @@ from config import *
 from config import INPUT_NSQ_CONF, OUTPUT_NSQ_CONF
 from api.amazon_keyword import AddAmazonKWM, DelAmazonKWM, GetAmazonKWMResult, GetAmazonKWMStatus
 
-
 # 环境变量,worker数量
 from util.pub import pub_to_nsq
 
@@ -46,6 +45,7 @@ def time_now():
     now_time = time.strftime("%Y-%m-%d %H:%M:%S")
     return now_time
 
+
 class HYKeywordTask(HYTask):
     @classmethod
     @property
@@ -57,19 +57,20 @@ def handle(group, task):
     hy_task = HYTask(task)
     station = hy_task.s
 
-def create_task():
+
+async def create_task():
     stations = ['US']
     for site in stations:
         task = {
-            "task": "amazon_category_sync",
+            "task": "report_task",
             "data": {
                 "site": site,
             }
         }
-        pub_to_nsq(NSQ_NSQD_HTTP_ADDR, TOPIC_NAME, json.dumps(task))
+        await pub_to_nsq(NSQ_NSQD_HTTP_ADDR, 'ebay_analysis.report', json.dumps(task))
+
 
 def run():
-
     # 创建NSQ输入点,参数为
     # """NSQ input endpoint
     #
@@ -109,5 +110,4 @@ def run():
 
     server.run()
 
-if __name__ == '__main__':
-    create_task()
+

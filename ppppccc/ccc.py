@@ -1,18 +1,12 @@
-def get_money(rmb=0):
-    pass
+import nsq
 
 
-def ignore_detection(days=0):
-    pass
+def handler(message):
+    print(message)
+    return True
 
 
-def delete_contact(user="this_user"):
-    pass
-
-
-if get_money(rmb=20):
-    ignore_detection(days=1)
-elif get_money(rmb=250):
-    ignore_detection(days=7)
-elif get_money(rmb=2300):
-    delete_contact()
+r = nsq.Reader(message_handler=handler,
+               lookupd_http_addresses=['http://47.112.96.218:4161'],
+               topic='ebay_analysis_report.product', channel='test', lookupd_poll_interval=15)
+nsq.run()
