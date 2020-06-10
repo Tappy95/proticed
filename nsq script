@@ -16,9 +16,9 @@ curl -d 'hello world 2' 'http://127.0.0.1:4151/pub?topic=test'
 curl -d '{
             "task": "amazon_keyword_sync",
             "data": {
-                "site": "de",
-                "asin": "B0085SN7J0",
-                "keyword": "chocolate"
+                "site": "us",
+                "asin": "B0871LKSS9",
+                "keyword": "decorativetape"
             }
          }' 'http://134.73.133.2:25751/pub?topic=haiying.amazon.keyword'
 curl -d '{
@@ -59,8 +59,8 @@ curl -d '{
 curl -d '{
             "task": "amazon_keyword",
             "data": {
-                "platform": "amazon_de",
-                "keyword":"door stopper wall",
-                "asin": "B07VVLXYCB"
+                "platform": "amazon_us",
+                "asin": "B0871LKSS9",
+                "keyword": "decorativetape"
             }
          }' 'http://bd-nsqd:4151/pub?topic=task.amazon'

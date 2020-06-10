@@ -1,5 +1,6 @@
 import asyncio
 import json
+import operator
 import time
 from datetime import datetime, timedelta
 
@@ -84,17 +85,14 @@ class add_crawler():
 def getkwrank():
     a = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
     print(a)
-    b = (datetime.now().replace(microsecond=0) - timedelta(days=20)).strftime('%Y-%m-%d %H:%M:%S')
+    b = (datetime.now().replace(microsecond=0) - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
     print(b)
-    result = GetAmazonKWMResult(
-        # ids = [x for x in range(234615,234630)],
-        ids=[424947],
-        start_time=b,
-        end_time=a,
-        # start_time='1',
-        # end_time='1',
+    result_rank = GetAmazonKWMResult(
+        ids=[514350],
+        start_time=(datetime.now().replace(microsecond=0) - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S'),
+        end_time=(datetime.now()).strftime('%Y-%m-%d %H:%M:%S'),
     ).request()
-    print(result)
+    print(result_rank['result'][0]['keyword_list'])
 
 
 def map_test(info):
@@ -266,5 +264,14 @@ def delete_all_task():
 #
 
 
+def compare():
+    dict1 ={'code': 200, 'msg': 'success', 'result': [{'asin': 'B07V99B4Q1', 'keyword': 'iPhone 11 ケース クリア', 'keyword_list': [{'start_time': '2020-05-22 00:05:41.0', 'station': 3, 'asin': 'B07V99B4Q1', 'keyword': 'iPhone 11 ケース クリア', 'keyword_rank': 21, 'aid': 2774316}, {'start_time': '2020-05-22 12:18:04.0', 'station': 3, 'asin': 'B07V99B4Q1', 'keyword': 'iPhone 11 ケース クリア', 'keyword_rank': 34, 'aid': 2774416}]}]}
+
+    key = dict1['result'][0]['keyword_list']
+    key.sort(key=operator.itemgetter('start_time'), reverse=True)
+    print(key)
+
 if __name__ == '__main__':
+    # getkwrank()
+    # compare()
     delete_all_task()
