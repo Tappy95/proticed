@@ -1,63 +1,33 @@
 # Definition for singly-linked list.
-# A single node of a singly linked list
-class Node:
-    # constructor
-    def __init__(self, data=None, next=None):
-        self.data = data
-        self.next = next
-
-
-# A Linked List class with a single head node
-class LinkedList:
-    def __init__(self):
-        self.head = None
-
-    # insertion method for the linked list
-    def insert(self, data):
-        newNode = Node(data)
-        if (self.head):
-            current = self.head
-            while (current.next):
-                current = current.next
-            current.next = newNode
-        else:
-            self.head = newNode
-
-    # print method for the linked list
-    def printLL(self):
-        current = self.head
-        while (current):
-            print(current.data)
-            current = current.next
-
-
-# Singly Linked List with insertion and print methods
-LL = LinkedList()
-LL.insert(3)
-LL.insert(4)
-LL.insert(5)
-LL.printLL()
+class ListNode:
+    def __init__(self, x):
+        self.val = x
+        self.next = None
 
 
 class Solution:
-    def mergetwolists(self, l1, l2):
-        if not l1:
-            return l2  # 终止条件，直到两个链表都空
-        if not l2:
-            return l1
-        if l1.data <= l2.data:  # 递归调用
-            l1.next = self.mergetwolists(l1.next, l2)
-            return l1
-        else:
-            l2.next = self.mergetwolists(l1, l2.next)
-            return l2
+    def mergeTwoLists(self, l1, l2):
+        # 创建哑节点作为 结果链表 的开头
+        dummy = ListNode(0)
+        # 有个游标，标识 结果链表 的结尾
+        move = dummy
+        # l1 和 l2 都未遍历结束
+        while l1 and l2:
+            # 如果 l1 的数值比较小
+            if l1.val <= l2.val:
+                # 把 l1 头部节点拼接到 结果链表 的结尾
+                move.next = l1
+                # l1 指向下一个节点
+                l1 = l1.next
+            else:
+                # 把 l2 头部节点拼接到 结果链表 的结尾
+                move.next = l2
+                # l2 指向下一个节点
+                l2 = l2.next
+            # 移动 结果链表 的结尾指针
+            move = move.next
+        # l1 或者 l2 尚未使用完，拼接到 结果链表 的最后
+        move.next = l1 if l1 else l2
+        # 返回哑节点的下一个位置
+        return dummy.next
 
-
-# a = Solution()
-# data1 = [1, 1, 2, 3, 31]
-# data2 = [1, 1, 4, 5, 19]
-# l1 = Linklist(data1)
-# l2 = Linklist(data2)
-# for i in l1:
-#     print(i.data)
-# print(a.mergetwolists(l1, l2))
