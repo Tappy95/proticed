@@ -1,15 +1,21 @@
-class Solution(object):
-    def generateParenthesis(self, n):
-        """
-        :type n: int
-        :rtype: List[str]
-        """
-        parent1 = "()"
-        start_result = ""
-        for i in range(n):
-            start_result += parent1
+class Solution:
+    def generateParenthesis(self, n: int):
+        res = []
+        cur_str = ""
 
-        print(start_result)
+        def dfs(cur_str, left, right):
+            if left == 0 and right == 0:
+                res.append(cur_str)
+                return
+            if right < left:
+                return
+            if left > 0:
+                dfs(cur_str + '(', left - 1, right)
+            if right > 0:
+                dfs(cur_str + ')', left, right - 1)
+
+        dfs(cur_str, n, n)
+        return res
 
 a = Solution()
-a.generateParenthesis(3)
+print(a.generateParenthesis(2))

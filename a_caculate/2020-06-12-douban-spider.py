@@ -35,7 +35,7 @@ weizhuang = [
     "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52"]
 
 headers = {'User-agent': random.choice(weizhuang)}
-xiaozu = ['tianhezufang']
+xiaozu = ['tianhezufang','gz_rent','637254']
 faburen = []
 PT = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -49,7 +49,7 @@ for abc in xiaozu:
 
         shaixuan = ['一房一厅', '棠东', '棠下']  # 填入各种想要筛选的关键词
         paichu = ['单间', '求租']  # '单间','次卧','主卧','室友'
-
+        # print(shaixuan, paichu)
         for b in xinxi:
             lianjie = (b.a['href'])
             biaoti = (b.a['title'])
