@@ -1,3 +1,4 @@
+faust
 aio-pika==6.4.1
 aiohttp==3.6.2
 aiormq==3.2.0
