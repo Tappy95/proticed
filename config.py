@@ -38,18 +38,31 @@ OUTPUT_NSQ_CONF = {
 # DB_SEVER_PORT = 4000 if PRODUCTION_ENV else 43021
 # DB_DATABASE_NAME = "bigdata"
 
-DB_USER_NAME = "linkcool" if PRODUCTION_ENV else "root"
-DB_USER_PW = "forconnect" if PRODUCTION_ENV else "@ie0bzy3!dlpq*d7"
-DB_SEVER_ADDR = "119.145.69.74" if PRODUCTION_ENV else "134.175.210.192"
-DB_SEVER_PORT = 43021 if PRODUCTION_ENV else 4000
+# DB_USER_NAME = "linkcool" if PRODUCTION_ENV else "root"
+# DB_USER_PW = "forconnect" if PRODUCTION_ENV else "@ie0bzy3!dlpq*d7"
+# DB_SEVER_ADDR = "119.145.69.74" if PRODUCTION_ENV else "134.175.210.192"
+# DB_SEVER_PORT = 43021 if PRODUCTION_ENV else 4000
+# DB_DATABASE_NAME = "bigdata"
+DB_USER_NAME = "root" if PRODUCTION_ENV else "wind"
+DB_USER_PW = "@ie0bzy3!dlpq*d7" if PRODUCTION_ENV else "!Syy950507"
+DB_SEVER_ADDR = "10.0.1.7" if PRODUCTION_ENV else "47.102.220.1"
+DB_SEVER_PORT = 4000 if PRODUCTION_ENV else 3306
 DB_DATABASE_NAME = "bigdata"
 
 SQLALCHEMY_DATABASE_URI = "mysql+pymysql://{name:s}:{pw:s}@{addr:s}:{port}/{db:s}".format(
     name=DB_USER_NAME,
     pw=DB_USER_PW,
     addr=DB_SEVER_ADDR,
-    port=DB_SEVER_PORT,
-    db=DB_DATABASE_NAME)
+    db=DB_DATABASE_NAME,
+    port=DB_SEVER_PORT
+)
+
+# SQLALCHEMY_DATABASE_URI = "mysql+pymysql://{name:s}:{pw:s}@{addr:s}:{port}/{db:s}".format(
+#     name=DB_USER_NAME,
+#     pw=DB_USER_PW,
+#     addr=DB_SEVER_ADDR,
+#     port=DB_SEVER_PORT,
+#     db=DB_DATABASE_NAME)
 SQLALCHEMY_POOL_PRE_PING = True
 SQLALCHEMY_ECHO = False if PRODUCTION_ENV else True
 SQLALCHEMY_POOL_SIZE = 0

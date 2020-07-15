@@ -6,8 +6,8 @@ class Greeting(faust.Record):
     to_name: str
 
 
-app = faust.App('hello-app', broker='kafka://localhost:9092')
-topic = app.topic('test1', value_type=Greeting)
+app = faust.App('pageviews', broker='kafka://47.112.96.218:9092')
+topic = app.topic('mykafka', value_type=Greeting)
 
 
 @app.agent(topic)
@@ -16,10 +16,10 @@ async def hello(greetings):
         print(f'Hello from {greeting.from_name} to {greeting.to_name}')
 
 
-@app.timer(interval=1.0)
+@app.timer(interval=1)
 async def example_sender(app):
     await hello.send(
-        value=Greeting(from_name='Faust', to_name='you'),
+        value=Greeting(from_name='dddd', to_name='you'),
     )
 
 

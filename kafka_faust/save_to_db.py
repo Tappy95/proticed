@@ -1,0 +1,248 @@
+import os
+import sys
+sys.path.append('..')
+
+import time
+from decimal import Decimal
+from typing import List
+
+import faust
+import asyncio
+from datetime import datetime, timedelta
+from collections import defaultdict
+from aiomysql.sa import create_engine
+from sqlalchemy.sql import select, and_, bindparam
+from sqlalchemy.dialects.mysql import insert
+
+from config import *
+from models.amazon_models import amazon_category_history
+
+
+
+class BaseState:
+
+    def show_diff(self, state):
+        dct = state.to_representation()
+        for k, v in self.to_representation().items():
+            if k == '__faust':
+                continue
+            print("{}:\t{}\t=>\t{}".format(k, v, dct.get(k)))
+
+
+class ProductResult(faust.Record, serializer='json', coerce=True, include_metadata=False):
+    asin: str
+    site: str
+    date: str
+    category_ids: List[str]
+    sold_last_1: int
+    # sold_last_3: int
+    sold_last_7: int
+    sold_last_30: int
+    gmv_last_1: Decimal
+    # gmv_last_3: Decimal
+    gmv_last_7: Decimal
+    gmv_last_30: Decimal
+
+
+class CategoryResult(faust.Record, BaseState, serializer='json', coerce=True, include_metadata=False):
+    # asin: str = ''
+    # date: str = datetime.fromtimestamp(0, TZ_SH).strftime("%Y-%m-%d")
+    date: str
+    site: str
+    category_id: str
+    gmv_last_1: Decimal
+    gmv_last_7: Decimal
+    gmv_last_30: Decimal
+    sold_last_1: int
+    sold_last_7: int
+    sold_last_30: int
+
+
+class BaseCalculator:
+
+    def __init__(self):
+        self.count = 0
+
+    def date_range(self, start, end):
+        date = start
+        while date <= end:
+            yield date
+            date = date + timedelta(days=1)
+
+    def str_to_datetime(self, date_str):
+        return datetime.strptime(date_str, "%Y-%m-%d")
+
+    def datetime_to_str(self, date):
+        return date.strftime("%Y-%m-%d")
+
+    def incre(self):
+        self.count += 1
+
+    def reset_count(self):
+        self.count = 0
+
+
+class CategoryCalculator(BaseCalculator):
+    def __init__(self, state_table):
+        self.state_table = state_table
+        super().__init__()
+
+    def initialize(self, key, category_data):
+        self.state_key = key
+        self.category_info = self.state_table[key]
+        self.category_data = category_data
+
+    def update_state(self, category_data):
+        if self.category_info.date:
+            if self.category_info.date == category_data.date:
+                self.category_info.gmv_last_1 += category_data.gmv_last_1
+                self.category_info.gmv_last_7 += category_data.gmv_last_7
+                self.category_info.gmv_last_30 += category_data.gmv_last_30
+                self.category_info.sold_last_1 += category_data.sold_last_1
+                self.category_info.sold_last_7 += category_data.sold_last_7
+                self.category_info.sold_last_30 += category_data.sold_last_30
+
+    def calculate(self, key, category_data):
+        self.incre()
+        self.initialize(key, category_data)
+        # print("--------shop data %s" % self.category_data)
+        if self.category_info.date > self.category_data.date:
+            return
+        # ori_state = copy.deepcopy(self.category_info)
+        self.update_state(category_data)
+        # TODO: if state is change or not
+        new_state = CategoryResult(
+            date=category_data.date,
+            site=category_data.site,
+            category_id=key,
+            gmv_last_1=self.category_info.gmv_last_1,
+            gmv_last_7=self.category_info.gmv_last_7,
+            gmv_last_30=self.category_info.gmv_last_30,
+            sold_last_1=self.category_info.sold_last_1,
+            sold_last_7=self.category_info.sold_last_7,
+            sold_last_30=self.category_info.sold_last_30,
+        )
+        # print("--------new product info")
+        # ori_state.show_diff(new_state)
+        self.state_table[self.state_key] = new_state
+        yield new_state
+
+
+default_category_state = lambda: CategoryResult(
+    date='',
+    site='',
+    category_id='',
+    gmv_last_1=Decimal(0),
+    gmv_last_7=Decimal(0),
+    gmv_last_30=Decimal(0),
+    sold_last_1=0,
+    sold_last_7=0,
+    sold_last_30=0,
+)
+
+engine = None
+
+app = faust.App('amazon-category-into-db', broker='kafka://47.112.96.218:9092',
+                topic_partitions=1, topic_replication_factor=1)
+
+product_result_topic = app.topic('amazon-product-result', value_type=ProductResult)
+category_result_topic = app.topic('amazon-category-result', value_type=CategoryResult)
+category_info_table = app.Table('amazon-category-infos',
+                                default=default_category_state,
+                                key_type=str, value_type=CategoryResult)
+
+
+@app.agent(product_result_topic, concurrency=2)
+async def category_calculate(stream):
+    # 创建计算对象
+    calculator = CategoryCalculator(category_info_table)
+
+    # 标记起始时间
+    start_time = time.time()
+
+    # 获取流
+    async for product_info in stream:
+        dct = product_info.to_representation()
+        # 处理stream data
+        for category_id in dct['category_ids']:
+            for category_result in calculator.calculate(category_id, product_info):
+                # 发送result到另一topic
+                await category_result_topic.send(value=category_result)
+        now_time = time.time()
+        if start_time + 10 < now_time:
+            # 计算处理速度
+            print("speed: {}".format(calculator.count / (now_time - start_time)))
+            start_time = now_time
+
+
+@app.agent(category_result_topic, concurrency=2)
+async def save_category_result(stream):
+    parsed_results = []
+    async for results in stream.take(10, within=10):
+        parsed_results.clear()
+        for result in results:
+            dct = result.to_representation()
+            parsed_results.append(dct)
+        # save category result
+        async with engine.acquire() as conn:
+            # save category history
+            insert_stmt = insert(amazon_category_history)
+            on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+                category_id=insert_stmt.inserted.category_id,
+                site=insert_stmt.inserted.site,
+                date=insert_stmt.inserted.date,
+                sold_last_1=insert_stmt.inserted.sold_last_1,
+                # sold_last_3=insert_stmt.inserted.sold_last_3,
+                sold_last_7=insert_stmt.inserted.sold_last_7,
+                sold_last_30=insert_stmt.inserted.sold_last_30,
+                gmv_last_1=insert_stmt.inserted.gmv_last_1,
+                # gmv_last_3=insert_stmt.inserted.gmv_last_3,
+                gmv_last_7=insert_stmt.inserted.gmv_last_7,
+                gmv_last_30=insert_stmt.inserted.gmv_last_30
+            )
+            await conn.execute(on_duplicate_key_stmt, parsed_results)
+
+
+@app.timer(interval=0.1)
+async def example_sender(app):
+    await product_result_topic.send(
+        value=ProductResult(
+            asin="B0075AJW0M",
+            site="us",
+            date="2020-07-10",
+            category_ids=[
+                "12898451",
+                "12898561",
+                "2617941011"
+            ],
+            sold_last_1=21,
+            # sold_last_3=int,
+            sold_last_7=62,
+            sold_last_30=176,
+            gmv_last_1=3002.19,
+            # gmv_last_3=Decimal,
+            gmv_last_7=25467.78,
+            gmv_last_30=49376.82,
+        )
+    )
+
+
+async def db_engine_init():
+    global engine
+    engine = await create_engine(echo=SQLALCHEMY_ECHO, pool_recycle=SQLALCHEMY_POOL_RECYCLE,
+                                 user=DB_USER_NAME, db=DB_DATABASE_NAME,
+                                 host=DB_SEVER_ADDR, port=DB_SEVER_PORT, password=DB_USER_PW,
+                                 autocommit=AUTOCOMMIT,
+                                 maxsize=10)
+
+
+@app.on_before_shutdown.connect
+async def close(app, **kwargs):
+    engine.close()
+    await engine.wait_closed()
+
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(db_engine_init())
+    app.main()

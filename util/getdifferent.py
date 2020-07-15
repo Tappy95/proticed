@@ -154,26 +154,13 @@ def condi():
     global real_category
     data = pd.read_csv(CSV_FILE_PATH)
     kk = list(set([]))
-    # c_id = data.loc[:, ['一级Id']].values.tolist()
-    # for i in c_id:
-    #     kk.append(i[0])
-    # kk = list(set(kk))
     c_1 = data.loc[:, ['site', 'category_name', 'category_id']]
     c_1 = c_1.to_dict(orient='records')
-    # c_1 = [x['一级Id'] for x in c_1 if x['一级Id'] in c_id]
     for i in c_1:
         if i['category_id'] not in kk:
             kk.append(i['category_id'])
             real_category.append(i)
     print("done real")
-    # kk.append({
-    #     c1['站点']
-    # })
-    # real_category.extend(list(set([x['一级Id'] for x in data.iteritems()])))
-    # real_category.extend(list(set([x for x in data['二级Id']])))
-    # data.index = data['一级Id']
-    # data.loc['']
-    # print(real_category)
 
 
 async def get_dif():
@@ -182,8 +169,6 @@ async def get_dif():
         cursor = await conn.execute(select_di)
         record = await cursor.fetchall()
         dict1 = [{"cid": category2['category_id'], "site": category2['site']} for category2 in record]
-        # exist_id = [category1['category_id'] for category1 in record]
-        # print(exist_id)
         kk = []
         # site_dict = {
         #     "US": 'us',
