@@ -12,6 +12,8 @@ from sqlalchemy.dialects.mysql import insert
 from HY_keyword import TOPIC_NAME
 from amazon_keyword.worker import KeywordTaskInfo
 from api.amazon_keyword import GetAmazonKWMStatus, AddAmazonKWM, GetAmazonKWMAllResult, GetAmazonKWMResult, DelAmazonKWM
+from api.amazon_product import GetAmazonProductBySearch
+from api.shopee_product import GetShopeeProductBySearch
 from models.amazon_models import amazon_keyword_task
 from task_protocol import HYTask
 from sqlalchemy import select
@@ -40,6 +42,9 @@ def getstatus():
     #     conn.execute()
     result = GetAmazonKWMStatus(ids=[424945]).request()
     print(result, "getstatus")
+
+
+
 
 
 def addmonkwasins():
@@ -264,14 +269,36 @@ def delete_all_task():
 #
 
 
-def compare():
-    dict1 ={'code': 200, 'msg': 'success', 'result': [{'asin': 'B07V99B4Q1', 'keyword': 'iPhone 11 ケース クリア', 'keyword_list': [{'start_time': '2020-05-22 00:05:41.0', 'station': 3, 'asin': 'B07V99B4Q1', 'keyword': 'iPhone 11 ケース クリア', 'keyword_rank': 21, 'aid': 2774316}, {'start_time': '2020-05-22 12:18:04.0', 'station': 3, 'asin': 'B07V99B4Q1', 'keyword': 'iPhone 11 ケース クリア', 'keyword_rank': 34, 'aid': 2774416}]}]}
+# def compare():
+#     dict1 ={'code': 200, 'msg': 'success', 'result': [{'asin': 'B07V99B4Q1', 'keyword': 'iPhone 11 ケース クリア', 'keyword_list': [{'start_time': '2020-05-22 00:05:41.0', 'station': 3, 'asin': 'B07V99B4Q1', 'keyword': 'iPhone 11 ケース クリア', 'keyword_rank': 21, 'aid': 2774316}, {'start_time': '2020-05-22 12:18:04.0', 'station': 3, 'asin': 'B07V99B4Q1', 'keyword': 'iPhone 11 ケース クリア', 'keyword_rank': 34, 'aid': 2774416}]}]}
+#
+#     key = dict1['result'][0]['keyword_list']
+#     key.sort(key=operator.itemgetter('start_time'), reverse=True)
+#     print(key)
 
-    key = dict1['result'][0]['keyword_list']
-    key.sort(key=operator.itemgetter('start_time'), reverse=True)
-    print(key)
+
+def get_shopee_pd():
+    # with engine.connect() as conn:
+    #     result_from_db = select(([amazon_keyword_task]))
+    #     conn.execute()
+    result = GetShopeeProductBySearch(
+        station='MY',
+        pids=['671164933']
+    ).request()
+    print(result, "getstatus")
+
+
+def get_amazon_pd():
+    # with engine.connect() as conn:
+    #     result_from_db = select(([amazon_keyword_task]))
+    #     conn.execute()
+    result = GetAmazonProductBySearch(
+        station='US',
+        asin='B07WF1R28L'
+    ).request()
+    print(json.dumps(result), "getstatus")
 
 if __name__ == '__main__':
     # getkwrank()
     # compare()
-    delete_all_task()
+    get_amazon_pd()

@@ -1,5 +1,8 @@
 import os
 import sys
+
+from sqlalchemy import text
+
 sys.path.append('..')
 
 import time
@@ -15,8 +18,7 @@ from sqlalchemy.sql import select, and_, bindparam
 from sqlalchemy.dialects.mysql import insert
 
 from config import *
-from models.amazon_models import amazon_category_history
-
+from models.amazon_models import amazon_category_history, wish_category_history, ebay_category_history
 
 
 class BaseState:
@@ -35,11 +37,11 @@ class ProductResult(faust.Record, serializer='json', coerce=True, include_metada
     date: str
     category_ids: List[str]
     sold_last_1: int
-    # sold_last_3: int
+    sold_last_3: int
     sold_last_7: int
     sold_last_30: int
     gmv_last_1: Decimal
-    # gmv_last_3: Decimal
+    gmv_last_3: Decimal
     gmv_last_7: Decimal
     gmv_last_30: Decimal
 
@@ -152,56 +154,99 @@ category_info_table = app.Table('amazon-category-infos',
                                 key_type=str, value_type=CategoryResult)
 
 
-@app.agent(product_result_topic, concurrency=2)
-async def category_calculate(stream):
-    # 创建计算对象
-    calculator = CategoryCalculator(category_info_table)
+# @app.agent(product_result_topic, concurrency=2)
+# async def category_calculate(stream):
+#     # 创建计算对象
+#     calculator = CategoryCalculator(category_info_table)
+#
+#     # 标记起始时间
+#     start_time = time.time()
+#
+#     # 获取流
+#     async for product_info in stream:
+#         dct = product_info.to_representation()
+#         # 处理stream data
+#         for category_id in dct['category_ids']:
+#             for category_result in calculator.calculate(category_id, product_info):
+#                 # 发送result到另一topic
+#                 await category_result_topic.send(value=category_result)
+#         now_time = time.time()
+#         if start_time + 10 < now_time:
+#             # 计算处理速度
+#             print("speed: {}".format(calculator.count / (now_time - start_time)))
+#             start_time = now_time
+#
+#
+# @app.agent(category_result_topic, concurrency=2)
+# async def save_category_result(stream):
+#     parsed_results = []
+#     async for results in stream.take(10, within=10):
+#         parsed_results.clear()
+#         for result in results:
+#             dct = result.to_representation()
+#             parsed_results.append(dct)
+#         # save category result
+#         async with engine.acquire() as conn:
+#             # save category history
+#             insert_stmt = insert(amazon_category_history)
+#             on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+#                 category_id=insert_stmt.inserted.category_id,
+#                 site=insert_stmt.inserted.site,
+#                 date=insert_stmt.inserted.date,
+#                 sold_last_1=insert_stmt.inserted.sold_last_1,
+#                 # sold_last_3=insert_stmt.inserted.sold_last_3,
+#                 sold_last_7=insert_stmt.inserted.sold_last_7,
+#                 sold_last_30=insert_stmt.inserted.sold_last_30,
+#                 gmv_last_1=insert_stmt.inserted.gmv_last_1,
+#                 # gmv_last_3=insert_stmt.inserted.gmv_last_3,
+#                 gmv_last_7=insert_stmt.inserted.gmv_last_7,
+#                 gmv_last_30=insert_stmt.inserted.gmv_last_30
+#             )
+#             await conn.execute(on_duplicate_key_stmt, parsed_results)
 
-    # 标记起始时间
-    start_time = time.time()
 
-    # 获取流
-    async for product_info in stream:
-        dct = product_info.to_representation()
-        # 处理stream data
-        for category_id in dct['category_ids']:
-            for category_result in calculator.calculate(category_id, product_info):
-                # 发送result到另一topic
-                await category_result_topic.send(value=category_result)
-        now_time = time.time()
-        if start_time + 10 < now_time:
-            # 计算处理速度
-            print("speed: {}".format(calculator.count / (now_time - start_time)))
-            start_time = now_time
-
-
-@app.agent(category_result_topic, concurrency=2)
-async def save_category_result(stream):
-    parsed_results = []
+@app.agent(product_result_topic, concurrency=1)
+async def save_category_statistics(stream):
+    category_map = {}
     async for results in stream.take(10, within=10):
-        parsed_results.clear()
+        category_map.clear()
         for result in results:
-            dct = result.to_representation()
-            parsed_results.append(dct)
-        # save category result
+            for category_id in result.category_ids:
+                ls = category_map.setdefault((category_id, result.site, result.date),
+                                             [0, 0, 0, Decimal('0.00'), Decimal('0.00'), Decimal('0.00')])
+                ls[0] += result.sold_last_1
+                ls[1] += result.sold_last_3
+                ls[2] += result.sold_last_7
+                ls[3] += result.gmv_last_1
+                ls[4] += result.gmv_last_3
+                ls[5] += result.gmv_last_7
+        parsed_results = [
+            {
+                "category_id": category_id,
+                "site": site,
+                "date": date,
+                "sold_last_1": ls[0],
+                "sold_last_3": ls[1],
+                "sold_last_7": ls[2],
+                "gmv_last_1": ls[3],
+                "gmv_last_3": ls[4],
+                "gmv_last_7": ls[5]
+            }
+            for (category_id, site, date), ls in category_map.items()
+        ]
+        # save product result
         async with engine.acquire() as conn:
-            # save category history
-            insert_stmt = insert(amazon_category_history)
+            # save product history
+            insert_stmt = insert(ebay_category_history)
             on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(
-                category_id=insert_stmt.inserted.category_id,
-                site=insert_stmt.inserted.site,
-                date=insert_stmt.inserted.date,
-                sold_last_1=insert_stmt.inserted.sold_last_1,
-                # sold_last_3=insert_stmt.inserted.sold_last_3,
-                sold_last_7=insert_stmt.inserted.sold_last_7,
-                sold_last_30=insert_stmt.inserted.sold_last_30,
-                gmv_last_1=insert_stmt.inserted.gmv_last_1,
-                # gmv_last_3=insert_stmt.inserted.gmv_last_3,
-                gmv_last_7=insert_stmt.inserted.gmv_last_7,
-                gmv_last_30=insert_stmt.inserted.gmv_last_30
+                sold_last_1=text("sold_last_1+VALUES(sold_last_1)"),
+                sold_last_3=text("sold_last_3+VALUES(sold_last_3)"),
+                sold_last_7=text("sold_last_7+VALUES(sold_last_7)"),
+                gmv_last_1=text("gmv_last_1+VALUES(gmv_last_1)"),
+                gmv_last_3=text("gmv_last_3+VALUES(gmv_last_3)"),
+                gmv_last_7=text("gmv_last_7+VALUES(gmv_last_7)")
             )
             await conn.execute(on_duplicate_key_stmt, parsed_results)
-
 
 @app.timer(interval=0.1)
 async def example_sender(app):
@@ -216,11 +261,11 @@ async def example_sender(app):
                 "2617941011"
             ],
             sold_last_1=21,
-            # sold_last_3=int,
+            sold_last_3=44,
             sold_last_7=62,
             sold_last_30=176,
             gmv_last_1=3002.19,
-            # gmv_last_3=Decimal,
+            gmv_last_3=1230.12,
             gmv_last_7=25467.78,
             gmv_last_30=49376.82,
         )

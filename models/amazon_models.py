@@ -114,3 +114,32 @@ amazon_product_relationship = Table(
     Column('update_time', TIMESTAMP),
     PrimaryKeyConstraint('to_asin', 'site', 'asin',  name='pk')
 )
+
+
+wish_category_history = Table(
+    'wish_category_history', metadata,
+    Column('category_id', String(32), nullable=False, default=''),
+    Column('date', DateTime, nullable=False),
+    Column('sold_last_1', Integer, nullable=False, default=0),
+    Column('sold_last_7', Integer, nullable=False, default=0),
+    Column('sold_last_30', Integer, nullable=False, default=0),
+    Column('gmv_last_1', DECIMAL(18, 2), nullable=False, default=0),
+    Column('gmv_last_7', DECIMAL(18, 2), nullable=False, default=0),
+    Column('gmv_last_30', DECIMAL(18, 2), nullable=False, default=0),
+    PrimaryKeyConstraint('category_id', 'date', name='pk')
+)
+
+
+ebay_category_history = Table(
+    'ebay_category_history', metadata,
+    Column('category_id', String(32), nullable=False, default=''),
+    Column('site', String(8), nullable=False, default=''),
+    Column('date', DateTime, nullable=False),
+    Column('sold_last_1', Integer, nullable=False, default=0),
+    Column('sold_last_3', Integer, nullable=False, default=0),
+    Column('sold_last_7', Integer, nullable=False, default=0),
+    Column('gmv_last_1', DECIMAL(18,2), nullable=False, default=0),
+    Column('gmv_last_3', DECIMAL(18,2), nullable=False, default=0),
+    Column('gmv_last_7', DECIMAL(18,2), nullable=False, default=0),
+    PrimaryKeyConstraint('category_id', 'site', 'date', name='pk')
+)
