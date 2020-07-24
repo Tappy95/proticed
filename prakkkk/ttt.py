@@ -1,19 +1,22 @@
-import datetime
+import jwt as jwt
 
+a = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTU1NjczMDgsIkFjY291bnQiOiJcdTViOGJcdTU5NTVcdThkMjQiLCJVc2VySWQiOjEyNjUyNTQ2Nzg2MTUxNjY5NzZ9.LPxBkJYdICJGNa5pH3mlv392NKBwp9KfyKmoOweyHYQ"
+def verify_jwt(token, secret=None):
+    """
+    检验jwt
+    :param token: jwt
+    :param secret: 密钥
+    :return: dict: payload
+    """
+    if not secret:
+        secret = "secret"
 
-def date_range(start_time, end_time, effect_time):
-    dates = []
-    dt = datetime.datetime.strptime(start_time, "%Y-%m-%d")
-    date = start_time[:]
-    while date <= end_time:
-        dates.append(date)
-        dt = dt + datetime.timedelta(1)
-        date = dt.strftime("%Y-%m-%d")
-    for e_time in effect_time:
-        if e_time in dates:
-            dates.remove(e_time)
+    # payload = jwt.decode(token, secret, algorithm=['HS256'])
+    try:
+        payload = jwt.decode(token, secret, algorithm=['HS256'])
+    except jwt.PyJWTError:
+        payload = None
 
-    return dates
+    return payload
 
-
-print(date_range('2020-02-03','2020-02-07',[]))
+print(verify_jwt(a))
