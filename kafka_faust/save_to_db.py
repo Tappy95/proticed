@@ -4,6 +4,7 @@ import sys
 from sqlalchemy import text
 
 sys.path.append('..')
+from kafka_faust.product_calculate_worker import ProductData
 
 import time
 from decimal import Decimal
@@ -153,7 +154,6 @@ category_info_table = app.Table('amazon-category-infos',
                                 default=default_category_state,
                                 key_type=str, value_type=CategoryResult)
 
-
 # @app.agent(product_result_topic, concurrency=2)
 # async def category_calculate(stream):
 #     # 创建计算对象
@@ -205,89 +205,128 @@ category_info_table = app.Table('amazon-category-infos',
 #             await conn.execute(on_duplicate_key_stmt, parsed_results)
 
 
-@app.agent(product_result_topic, concurrency=1)
-async def save_category_statistics(stream):
-    category_map = {}
-    async for results in stream.take(10, within=10):
-        category_map.clear()
-        for result in results:
-            for category_id in result.category_ids:
-                ls = category_map.setdefault((category_id, result.site, result.date),
-                                             [0, 0, 0, Decimal('0.00'), Decimal('0.00'), Decimal('0.00')])
-                ls[0] += result.sold_last_1
-                ls[1] += result.sold_last_3
-                ls[2] += result.sold_last_7
-                ls[3] += result.gmv_last_1
-                ls[4] += result.gmv_last_3
-                ls[5] += result.gmv_last_7
-        parsed_results = [
-            {
-                "category_id": category_id,
-                "site": site,
-                "date": date,
-                "sold_last_1": ls[0],
-                "sold_last_3": ls[1],
-                "sold_last_7": ls[2],
-                "gmv_last_1": ls[3],
-                "gmv_last_3": ls[4],
-                "gmv_last_7": ls[5]
-            }
-            for (category_id, site, date), ls in category_map.items()
-        ]
-        # save product result
-        async with engine.acquire() as conn:
-            # save product history
-            insert_stmt = insert(ebay_category_history)
-            on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(
-                sold_last_1=text("sold_last_1+VALUES(sold_last_1)"),
-                sold_last_3=text("sold_last_3+VALUES(sold_last_3)"),
-                sold_last_7=text("sold_last_7+VALUES(sold_last_7)"),
-                gmv_last_1=text("gmv_last_1+VALUES(gmv_last_1)"),
-                gmv_last_3=text("gmv_last_3+VALUES(gmv_last_3)"),
-                gmv_last_7=text("gmv_last_7+VALUES(gmv_last_7)")
-            )
-            await conn.execute(on_duplicate_key_stmt, parsed_results)
+# @app.agent(product_result_topic, concurrency=1)
+# async def save_category_statistics(stream):
+#     category_map = {}
+#     async for results in stream.take(10, within=10):
+#         category_map.clear()
+#         for result in results:
+#             for category_id in result.category_ids:
+#                 ls = category_map.setdefault((category_id, result.site, result.date),
+#                                              [0, 0, 0, Decimal('0.00'), Decimal('0.00'), Decimal('0.00')])
+#                 ls[0] += result.sold_last_1
+#                 ls[1] += result.sold_last_3
+#                 ls[2] += result.sold_last_7
+#                 ls[3] += result.gmv_last_1
+#                 ls[4] += result.gmv_last_3
+#                 ls[5] += result.gmv_last_7
+#         parsed_results = [
+#             {
+#                 "category_id": category_id,
+#                 "site": site,
+#                 "date": date,
+#                 "sold_last_1": ls[0],
+#                 "sold_last_3": ls[1],
+#                 "sold_last_7": ls[2],
+#                 "gmv_last_1": ls[3],
+#                 "gmv_last_3": ls[4],
+#                 "gmv_last_7": ls[5]
+#             }
+#             for (category_id, site, date), ls in category_map.items()
+#         ]
+#         # save product result
+#         async with engine.acquire() as conn:
+#             # save product history
+#             insert_stmt = insert(ebay_category_history)
+#             on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+#                 sold_last_1=text("sold_last_1+VALUES(sold_last_1)"),
+#                 sold_last_3=text("sold_last_3+VALUES(sold_last_3)"),
+#                 sold_last_7=text("sold_last_7+VALUES(sold_last_7)"),
+#                 gmv_last_1=text("gmv_last_1+VALUES(gmv_last_1)"),
+#                 gmv_last_3=text("gmv_last_3+VALUES(gmv_last_3)"),
+#                 gmv_last_7=text("gmv_last_7+VALUES(gmv_last_7)")
+#             )
+#             await conn.execute(on_duplicate_key_stmt, parsed_results)
 
-@app.timer(interval=0.1)
+# @app.timer(interval=0.1)
+# async def example_sender(app):
+#     await product_result_topic.send(
+#         value=ProductResult(
+#             asin="B0075AJW0M",
+#             site="us",
+#             date="2020-07-10",
+#             category_ids=[
+#                 "12898451",
+#                 "12898561",
+#                 "2617941011"
+#             ],
+#             sold_last_1=21,
+#             sold_last_3=44,
+#             sold_last_7=62,
+#             sold_last_30=176,
+#             gmv_last_1=3002.19,
+#             gmv_last_3=1230.12,
+#             gmv_last_7=25467.78,
+#             gmv_last_30=49376.82,
+#         )
+#     )
+
+
+product_data_topic = app.topic('ebay-product-data1', key_type=str,
+                               value_type=ProductData)
+
+update_time = datetime(2020, 7, 29, 0, 1)
+data_update_time = datetime(2020, 7, 30, 0, 32, 21)
+timestamp = 1596181575
+sold = 99
+@app.timer(interval=4)
 async def example_sender(app):
-    await product_result_topic.send(
-        value=ProductResult(
-            asin="B0075AJW0M",
-            site="us",
-            date="2020-07-10",
-            category_ids=[
-                "12898451",
-                "12898561",
-                "2617941011"
-            ],
-            sold_last_1=21,
-            sold_last_3=44,
-            sold_last_7=62,
-            sold_last_30=176,
-            gmv_last_1=3002.19,
-            gmv_last_3=1230.12,
-            gmv_last_7=25467.78,
-            gmv_last_30=49376.82,
-        )
+    global update_time, data_update_time, timestamp,sold
+    update_time += timedelta(days=1)
+    data_update_time += timedelta(days=1)
+    timestamp += 86400
+    sold += 10
+    print(data_update_time)
+    message = ProductData(
+            timestamp=timestamp, item_id='263548829995', site='uk', brand='Unbranded', seller='anjoe1990',
+            category_ids=['63862', '11450', '15724'], leaf_category_ids=['63862'],
+            category_paths=["Clothing, Shoes & Accessories - Men's Clothing - Activewear - Activewear Tops",
+                            "Clothing, Shoes & Accessories - Women's Clothing - Intimates & Sleep - Shapewear"],
+            category_l1_ids=["1233", "222"],
+            category_l2_ids=["444"],
+            category_l3_ids=["9384", "11"],
+            price=Decimal('74.01'), visit=sold, sold=sold,
+            img="https://i.ebayimg.com/00/s/NzUwWDc1MA==/z/8egAAOSwwz9dLB6A/$_12.JPG?set_id=880000500F",
+            title="Womens Winter  Long Woolen Coat Ladies Loose Sheep Sheared Overcoat Hot Jacket",
+            item_location="CN,Cheng Du",
+            item_location_country="CN",
+            store="anjoe1990", store_location="CN", marketplace="EBAY-GB", popular=False,
+            update_time=update_time,
+            gen_time=datetime(2019, 10, 5, 11, 1, 43),
+            data_update_time=data_update_time)
+    print(message)
+    await product_data_topic.send(
+        value=message,
+        key='uk' + '263548829995'
     )
 
 
-async def db_engine_init():
-    global engine
-    engine = await create_engine(echo=SQLALCHEMY_ECHO, pool_recycle=SQLALCHEMY_POOL_RECYCLE,
-                                 user=DB_USER_NAME, db=DB_DATABASE_NAME,
-                                 host=DB_SEVER_ADDR, port=DB_SEVER_PORT, password=DB_USER_PW,
-                                 autocommit=AUTOCOMMIT,
-                                 maxsize=10)
+# async def db_engine_init():
+#     global engine
+#     engine = await create_engine(echo=SQLALCHEMY_ECHO, pool_recycle=SQLALCHEMY_POOL_RECYCLE,
+#                                  user=DB_USER_NAME, db=DB_DATABASE_NAME,
+#                                  host=DB_SEVER_ADDR, port=DB_SEVER_PORT, password=DB_USER_PW,
+#                                  autocommit=AUTOCOMMIT,
+#                                  maxsize=10)
 
 
-@app.on_before_shutdown.connect
-async def close(app, **kwargs):
-    engine.close()
-    await engine.wait_closed()
+# @app.on_before_shutdown.connect
+# async def close(app, **kwargs):
+#     engine.close()
+#     await engine.wait_closed()
 
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(db_engine_init())
+    # loop.run_until_complete(db_engine_init())
     app.main()

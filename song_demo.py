@@ -13,6 +13,7 @@ from HY_keyword import TOPIC_NAME
 from amazon_keyword.worker import KeywordTaskInfo
 from api.amazon_keyword import GetAmazonKWMStatus, AddAmazonKWM, GetAmazonKWMAllResult, GetAmazonKWMResult, DelAmazonKWM
 from api.amazon_product import GetAmazonProductBySearch
+from api.ebay_product import GetEbayProduct, GetEbayProductBySearch
 from api.shopee_product import GetShopeeProductBySearch
 from models.amazon_models import amazon_keyword_task
 from task_protocol import HYTask
@@ -42,9 +43,6 @@ def getstatus():
     #     conn.execute()
     result = GetAmazonKWMStatus(ids=[424945]).request()
     print(result, "getstatus")
-
-
-
 
 
 def addmonkwasins():
@@ -298,7 +296,15 @@ def get_amazon_pd():
     ).request()
     print(json.dumps(result), "getstatus")
 
+
+def get_ebay_product():
+    result = GetEbayProductBySearch(
+        station="UK",
+        item_ids=['283920789296']
+    )
+
+
 if __name__ == '__main__':
     # getkwrank()
     # compare()
-    get_amazon_pd()
+    get_ebay_product()
