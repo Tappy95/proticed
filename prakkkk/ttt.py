@@ -21,7 +21,3 @@
 #
 # print(verify_jwt(a))
 
-a = [1,1,1,1,1]
-for i in range(10-len(a)):
-    a.insert(0,0.00)
-print(type(a[0]))

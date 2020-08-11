@@ -471,7 +471,7 @@ def configure(app, conf, **kwargs):
 
 product_data_topic = app.topic('ebay-product-data1', key_type=str,
                                value_type=ProductData)
-product_info_table = app.Table('ebay-product-infos11',
+product_info_table = app.Table('ebay-product-infos14',
                                default=default_product_state,
                                key_type=str, value_type=ProductState
                                )

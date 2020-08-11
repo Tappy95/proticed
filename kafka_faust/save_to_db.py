@@ -275,9 +275,9 @@ category_info_table = app.Table('amazon-category-infos',
 product_data_topic = app.topic('ebay-product-data1', key_type=str,
                                value_type=ProductData)
 
-update_time = datetime(2020, 7, 29, 0, 1)
-data_update_time = datetime(2020, 7, 30, 0, 32, 21)
-timestamp = 1596181575
+update_time = datetime(2020, 8, 29, 0, 1)
+data_update_time = datetime(2020, 8, 30, 0, 32, 21)
+timestamp = 1598859975
 sold = 99
 @app.timer(interval=4)
 async def example_sender(app):

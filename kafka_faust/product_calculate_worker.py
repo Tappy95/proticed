@@ -223,6 +223,8 @@ class ProductCalculator(BaseCalculator):
         self.product_info = self.state_table[key]
         # completion
         original_periods_check = len(self.product_info.sold_last)
+        if not self.product_info.first_date:
+            self.product_info.first_date = ""
         if len(self.product_info.sold_last) != PRODUCT_PERIODS:
             for i in range(PRODUCT_PERIODS-original_periods_check):
                 self.product_info.sold_last.insert(0, 0)
@@ -359,7 +361,8 @@ class ProductCalculator(BaseCalculator):
                                  visit_total_last=self.product_info.visit_total_last[-1 * PRODUCT_TOTAL_PERIODS:],
                                  sold_last=self.product_info.sold_last[-1 * PRODUCT_PERIODS:],
                                  visit_last=self.product_info.visit_last[-1 * PRODUCT_PERIODS:],
-                                 gmv_last=self.product_info.gmv_last[-1 * PRODUCT_PERIODS:])
+                                 gmv_last=self.product_info.gmv_last[-1 * PRODUCT_PERIODS:],
+                                 first_date=self.product_info.first_date if self.product_info.first_date else self.product_info.date_ls[-1])
         # print("--------new product info")
         ori_state.show_diff(new_state)
         self.state_table[self.state_key] = new_state
@@ -507,7 +510,7 @@ def configure(app, conf, **kwargs):
 
 product_data_topic = app.topic('ebay-product-data1', key_type=str,
                                value_type=ProductData)
-product_info_table = app.Table('ebay-product-infos11',
+product_info_table = app.Table('ebay-product-infos14',
                                default=default_product_state,
                                key_type=str, value_type=ProductState
                                )
