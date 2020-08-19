@@ -300,8 +300,9 @@ def get_amazon_pd():
 def get_ebay_product():
     result = GetEbayProductBySearch(
         station="UK",
-        item_ids=['283920789296']
-    )
+        item_ids=['283978783369']
+    ).request()
+    print(json.dumps(result))
 
 
 if __name__ == '__main__':

@@ -64,3 +64,6 @@ curl -d '{
                 "keyword": "decorativetape"
             }
          }' 'http://bd-nsqd:4151/pub?topic=task.amazon'
+
+
+mysql -h rm-m5epui2mr0l38qot98o.mysql.rds.aliyuncs.com -P 3306 -u online_db_accout -p
