@@ -281,7 +281,7 @@ def get_shopee_pd():
     #     conn.execute()
     result = GetShopeeProductBySearch(
         station='MY',
-        pids=['671164933']
+        pids=['2450502604']
     ).request()
     print(result, "getstatus")
 
@@ -300,7 +300,8 @@ def get_amazon_pd():
 def get_ebay_product():
     result = GetEbayProductBySearch(
         station="UK",
-        item_ids=['283978783369']
+        # item_ids=['402358061170']
+        # item_location="UK"
     ).request()
     print(json.dumps(result))
 
@@ -308,4 +309,4 @@ def get_ebay_product():
 if __name__ == '__main__':
     # getkwrank()
     # compare()
-    get_ebay_product()
+    get_shopee_pd()
