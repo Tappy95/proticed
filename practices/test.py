@@ -80,47 +80,86 @@
 
 
 import asyncio
+import copy
 import json
 
 filename = "2020-09-14_us"
-dct = {
-        "item_id": "123",
-        "category_path": "123:1234:45234",
-        "title": "fuck the java"
-    }
 
-sites= ['us','uk']
+sites = ['us', 'uk']
+
+
 class FileBuffer(object):
 
-    def __init__(self, name, max_size):
+    def __init__(self, name, max_size, us_file, uk_file, au_file, de_file):
         self.name = name
         self.max_size = max_size
         self.size = 0
-        self.body = []
+        self.us_file = us_file
+        self.uk_file = uk_file
+        self.au_file = au_file
+        self.de_file = de_file
+        self.body = {
+            "us": [],
+            "uk": [],
+            "au": [],
+            "de": [],
+        }
 
     async def push(self, data):
-        data = json.dumps(data) if data else None
+        data = data if data else None
+        site = data.pop('site')
         _datas = (data,)
         _size = len(data) + 1
         if _size + self.size > self.max_size:
             await self.flush()
-        self.body.append(_datas)
+        self.body[site].append(_datas)
         self.size += _size
 
     async def flush(self):
         if self.size:
-            row_data = [data for datas in self.body for data in datas]
-            print("{} size: {}, count: {}, avg_size: {}".format(
-                self.name, len(row_data), len(self.body), len(row_data) / len(self.body)))
+            row_list_us = "\n".join(
+                ['\t'.join([ele for ele in data.values()]) for datas in self.body["us"] for data in datas]) + "\n"\
+                if len(self.body["us"]) > 0 else ""
+            row_list_uk = "\n".join(
+                ['\t'.join([ele for ele in data.values()]) for datas in self.body["uk"] for data in datas]) + "\n"\
+                if len(self.body["uk"]) > 0 else ""
+            row_list_au = "\n".join(
+                ['\t'.join([ele for ele in data.values()]) for datas in self.body["au"] for data in datas]) + "\n"\
+                if len(self.body["au"]) > 0 else ""
+            row_list_de = "\n".join(
+                ['\t'.join([ele for ele in data.values()]) for datas in self.body["de"] for data in datas]) + "\n"\
+                if len(self.body["de"]) > 0 else ""
+            # row_data = "\n".join(row_list) + "\n"
+            self.us_file.write(row_list_us)
+            self.uk_file.write(row_list_uk)
+            self.au_file.write(row_list_au)
+            self.de_file.write(row_list_de)
+            # print("{} size: {}, count: {}, avg_size: {}".format(
+            #     self.name, len(row_data), len(self.body), len(row_data) / len(self.body)))
             self.size = 0
-            self.body.clear()
+            self.body = {
+                "us": [],
+                "uk": [],
+                "au": [],
+                "de": [],
+            }
+
+
 async def coco():
-    with open('./a.txt', 'a') as f1, open('./b.txt', 'a') as f2:
-        buffer = FileBuffer('f1', 20)
-        for i in range(100):
+    with open('./us.txt', 'a') as f1, open('./uk.txt', 'a') as f2, \
+            open('./au.txt', 'a') as f3, open('./de.txt', 'a') as f4:
+        buffer = FileBuffer('f1', 20, f1, f2, f3, f4)
+        for idx, i in enumerate(range(1)):
+            dct = {
+                "item_id": "123",
+                "category_path": "123:1234:45234",
+                "title": "fuck the java",
+                "site": "uk"
+            }
             await buffer.push(dct)
         else:
             await buffer.flush()
+
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
