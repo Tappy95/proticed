@@ -4,7 +4,7 @@ import sys
 from sqlalchemy import text
 
 sys.path.append('..')
-from kafka_faust.product_calculate_worker import ProductData
+from kafka_faust_english_nlp.product_calculate_worker import ProductData
 
 import time
 from decimal import Decimal
