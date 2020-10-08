@@ -87,7 +87,7 @@ class GetItem(BaseAPI):
 
 if __name__ == '__main__':
     async def test():
-        api = GetItem('EBAY-UK', '283978783369')
+        api = GetItem('EBAY-GB', '352717554630')
         dct = await api.aio_request()
         print(json.dumps(dct))
     loop = asyncio.get_event_loop()

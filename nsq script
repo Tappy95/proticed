@@ -3,8 +3,8 @@ nsqd --lookupd-tcp-address=47.102.220.1:4160 --broadcast-address=47.102.220.1 &
 nsqadmin --lookupd-http-address=47.102.220.1:4161 &
 
 docker run --name lookupd -p 4160:4160 -p 4161:4161 -d nsqio/nsq /nsqlookupd
-docker run --name nsqd -p 4150:4150 -p 4151:4151 -d nsqio/nsq /nsqd --broadcast-address=47.112.96.218 --lookupd-tcp-address=47.112.96.218:4160
-docker run -d --name nsqadmin -p 4171:4171 nsqio/nsq /nsqadmin --lookupd-http-address=47.112.96.218:4161
+docker run --name nsqd -p 4150:4150 -p 4151:4151 -d nsqio/nsq /nsqd --broadcast-address=106.53.85.158 --lookupd-tcp-address=106.53.85.158:4160
+docker run -d --name nsqadmin -p 4171:4171 nsqio/nsq /nsqadmin --lookupd-http-address=106.53.85.158:4161
 
 #服务停止
 ps -ef | grep nsq| grep -v grep | awk '{print $2}' | xargs kill -2
