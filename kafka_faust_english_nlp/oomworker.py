@@ -57,8 +57,8 @@ url_list = [
 def create_work(func, task_q, loop, worker_executor, result_q):
     """ Wrap func into coroutine, func will run as a coroutine
     """
-
     import functools
+
     @functools.wraps(func)
     async def worker():
         task = await task_q.get()
@@ -101,19 +101,16 @@ async def every_minute():
         task_ls = []
         for _ in range(5):
             await task_q.put("https://www.baidu.com")
-            worker = create_work(get_requests, task_q, loop,  executor, result_q)
+            worker = create_work(get_requests, task_q, loop, executor, result_q)
             task_ls.append(loop.create_task(worker()))
         await asyncio.gather(*task_ls)
 
         for _ in range(5):
             result_info = await result_q.get()
-            print(result)
-
-
-
+            print(result_info)
     except Exception as exc:
         exc_info = (type(exc), exc, exc.__traceback__)
-        logger.error("[request error] url: {}".format("http://127.0.0.1:8000/ebay/search"), exc_info=exc_info)
+        logger.error("[request error] url: {}".format("https://www.baidu.com"), exc_info=exc_info)
         exc.__traceback__ = None
     print(time.time() - start)
     # tr.print_diff()

@@ -292,7 +292,7 @@ def get_amazon_pd():
     #     conn.execute()
     result = GetAmazonProductBySearch(
         station='US',
-        asin='B071G4P69S'
+        asin='B019WC42N2'
     ).request()
     print(json.dumps(result), "getstatus")
 
