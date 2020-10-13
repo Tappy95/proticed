@@ -70,10 +70,19 @@ def create_work(func, task_q, loop, worker_executor, result_q):
 
 def get_requests(url):
     print(22222222222222222222222222222222)
-    requests.get(url)
-    import time
-    time.sleep(3)
-    return True
+    resp = requests.get(url)
+    info = None
+    if resp.status_code != 200:
+        logger.error("[status code error] {} {}"
+                     .format(resp.status_code, url))
+    else:
+        info = json.loads(resp.text)
+    result_info = {"product_ls": [], "count_info": {}, "page_info": {}}
+    if info is not None:
+        result_info["product_ls"] = info.get("items", [])
+        result_info["count_info"] = info.get("requestContext", {}).get("itemCount", {})
+        result_info["page_info"] = info.get("pagination", {})
+    return result_info
 
 
 @app.timer(interval=5)
@@ -97,8 +106,9 @@ async def every_minute():
         await asyncio.gather(*task_ls)
 
         for _ in range(5):
-            result = await result_q.get()
+            result_info = await result_q.get()
             print(result)
+
 
 
     except Exception as exc:
