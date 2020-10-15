@@ -8,7 +8,7 @@ worker_executor = futures.ThreadPoolExecutor(5)
 
 
 class WalmartProduct:
-    def __init__(self):
+    def __init__(self, task):
         self.temp1 = 3
         self.temp2 = 2
         self.loop = asyncio.get_event_loop()
@@ -22,27 +22,22 @@ class WalmartProduct:
 
     def get_request(self):
         url = self.url
+        print(url)
         resp = requests.get(url)
-        time.sleep(4)
+        time.sleep(2)
         return resp.status_code
 
-    def create_work(self, func, worker_executor1):
-        @functools.wraps(func)
-        async def worker():
-            return await self.loop.run_in_executor(worker_executor1, func)
-
-        return worker
-
-    def request(self):
-        worker = self.create_work(self.get_request, worker_executor)
-        return self.loop.create_task(worker())
+    async def get_requests(self):
+        executor_loop = asyncio.get_event_loop()
+        with futures.ThreadPoolExecutor(1) as pool:
+            return await executor_loop.run_in_executor(pool, self.get_request)
 
     async def __anext__(self):
         if self.temp1 <= 0:
             raise StopAsyncIteration()
         self.temp1 -= 1
-        result_info = await self.request()
-        print("func result code :", result_info)
+        result_info = await self.get_requests()
+        print(result_info)
         return self._parse_product_infos([1, 2, 3])
 
     def _parse_product_infos(self, infos):
@@ -55,13 +50,28 @@ class WalmartProduct:
         return info
 
 
+class Stream:
+    def __init__(self):
+        self.temp = 3
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        if self.temp <= 0:
+            raise StopAsyncIteration()
+        self.temp -= 1
+
+
 async def sync_product():
     start = time.time()
-    async for infos in WalmartProduct():
-        for product_data in infos:
-            print(product_data)
+    async for task in Stream():
+        async for infos in WalmartProduct(task):
+            for product_data in infos:
+                print(product_data)
     print(time.time() - start)
 
 
 if __name__ == '__main__':
-    asyncio.run(sync_product())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(sync_product())
