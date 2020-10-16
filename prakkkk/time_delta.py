@@ -1,7 +1,7 @@
 import time
 from datetime import datetime, timedelta
 
-# now = datetime.now()
+now = int(time.time())
 # zeroToday = now - timedelta(hours=now.hour, minutes=now.minute, seconds=now.second,
 #                             microseconds=now.microsecond) + timedelta(days=1)
 # delta = zeroToday - now
@@ -11,10 +11,10 @@ from datetime import datetime, timedelta
 #     print("geieieieie")
 # else:
 #     print(now-start_time)
-# print(now)
+print(now)
 # print(zeroToday)
 # print(delta.total_seconds())
-time1 = 1602691200.000
-time2 = datetime.fromtimestamp(time1)
-time3 = time.strftime("%Y%m%d%H%M%S", time2)
-print(time2)
+# time1 = 1602691200.000
+# time2 = datetime.fromtimestamp(time1)
+# time3 = time.strftime("%Y%m%d%H%M%S", time2)
+# print(time2)
