@@ -1,3 +1,4 @@
+# coding=utf-8
 import time
 from datetime import datetime, timedelta, date
 
@@ -21,7 +22,16 @@ from datetime import datetime, timedelta, date
 # cur = time.time()
 # a = cur - cur % 86400 - 20 * 3600
 # print(a)
-
+# 获取当前时间
+now = datetime.now()
+# 获取今天零点
+zeroToday = now - timedelta(hours=now.hour, minutes=now.minute, seconds=now.second,microseconds=now.microsecond)
+# 获取23:59:59
+lastToday = zeroToday + timedelta(hours=23, minutes=59, seconds=59)
+print(zeroToday,lastToday)
+print(time.mktime(zeroToday.timetuple()))
+print(time.mktime(lastToday.timetuple()))
+print(type(time.mktime(lastToday.timetuple())))
 
 # a = ['2020-10-16', '2020-10-15', '2020-10-17']
 # b = sorted(a)
@@ -36,17 +46,20 @@ from datetime import datetime, timedelta, date
 # delta = l_date - f_date
 # print(delta.days)
 #
-# from datetime import datetime
-# days = 737963
-# print(datetime.fromordinal(days - 365))
+from datetime import datetime
+days = 737935
+print(datetime.fromordinal(days - 365))
 #
 #
 # print(float("0.85") * int("8"))
 
-today = date.today()
-d2 = today - timedelta(days=8)
-# dd/mm/YY
-d1 = today.strftime("%Y-%m-%d")
-d2 = d2.strftime("%Y-%m-%d")
-print(d1)
-print(d2)
+# today = date.today()
+# d2 = today - timedelta(days=8)
+# # dd/mm/YY
+# d1 = today.strftime("%Y-%m-%d")
+# d2 = d2.strftime("%Y-%m-%d")
+# print(d1)
+# print(d2)
+# print(int(time.time()*1000))
+if "0":
+    print("--------------")

@@ -2,38 +2,10 @@
 <project version="4">
   <component name="PublishConfigData" autoUpload="Always" serverName="root@47.112.96.218:22">
     <serverData>
-      <paths name="root@106.53.85.158:22">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="root@192.168.40.129:22">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/home/wind/Desktop/proticed" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="root@47.102.220.1:22">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
       <paths name="root@47.104.249.77:22">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="root@47.112.96.218:22">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/root/proticed" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

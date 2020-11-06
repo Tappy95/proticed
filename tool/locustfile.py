@@ -12,9 +12,9 @@ class QuickstartUser(HttpUser):
         #     headers={
         #         "Authorization": "123456"
         #     }
-        # )
+        # )/userInfo/loginByPassword?mobile=13244444444&password=e10adc3949ba59abbe56e057f20f883e&imei=e7f159ef35bfa4a4&equipmentType=1&registrationId=
         self.client.get(
-            "/shopee",
+            "/api/userInfo/loginByPassword?mobile=13244444444&password=e10adc3949ba59abbe56e057f20f883e&imei=e7f159ef35bfa4a4&equipmentType=1",
             headers={
                 "Authorization": "123456"
             }
