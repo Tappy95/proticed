@@ -7,7 +7,6 @@ from util.log import logger
 
 
 class BaseAPI:
-
     verb = None
     id_map = {
         'EBAY-US': 0,
@@ -48,6 +47,8 @@ class BaseAPI:
         self._api.build_request(self.verb, data, verb_attrs=None)
         self.method = self._api.request.method
         self.url = self._api.request.url
+
+
         self.headers = self._api.request.headers
         self.body = self._api.request.body
 
@@ -61,17 +62,19 @@ class BaseAPI:
                                                timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
                         if resp.status != 200:
                             retry -= 1
-                            logger.error("[status code error] {}, params: {}, retry remain: {}".format(resp.status, self.params, retry))
+                            logger.error(
+                                "[status code error] {}, params: {}, retry remain: {}".format(resp.status, self.params,
+                                                                                              retry))
                         else:
                             return Response(ResponseDataObject({'content': await resp.read()}),
                                             self.verb).dict()
             except Exception as exc:
-                logger.error("[request error] {} {}, params: {}, retry remain: {}".format(type(exc), exc, self.params, retry))
+                logger.error(
+                    "[request error] {} {}, params: {}, retry remain: {}".format(type(exc), exc, self.params, retry))
             await asyncio.sleep(retry_interval)
 
 
 class GetItem(BaseAPI):
-
     verb = "GetItem"
 
     def __init__(self, site, item_id):
@@ -85,10 +88,31 @@ class GetItem(BaseAPI):
         super().__init__(site, data)
 
 
+class GetSellerList(BaseAPI):
+    verb = "GetSellerList"
+
+    def __init__(self, site, user_id):
+        self.params = (user_id)
+        data = {
+            'UserID': user_id,
+            'EndTimeFrom': '2020-11-18 10:00:00',
+            'EndTimeTo': '2020-11-18 10:00:00',
+            'StartTimeFrom': '2020-11-11 10:00:00',
+            'StartTimeTo': '2020-11-11 10:00:00',
+            'Pagination ': {
+                "EntriesPerPage": 10,
+                "PageNumber": 1
+            }
+        }
+        super().__init__(site, data)
+
+
 if __name__ == '__main__':
     async def test():
-        api = GetItem('EBAY-GB', '352717554630')
+        api = GetSellerList('uk', 'neogames')
         dct = await api.aio_request()
         print(json.dumps(dct))
+
+
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test())

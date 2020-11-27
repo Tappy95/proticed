@@ -292,7 +292,7 @@ def get_amazon_pd():
     #     conn.execute()
     result = GetAmazonProductBySearch(
         station='US',
-        asin='B08GFS53KL'
+        asin='B07D3R951C'
     ).request()
     print(json.dumps(result), "getstatus")
 
@@ -309,4 +309,4 @@ def get_ebay_product():
 if __name__ == '__main__':
     # getkwrank()
     # compare()
-    get_ebay_product()
+    get_amazon_pd()

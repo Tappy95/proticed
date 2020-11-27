@@ -29,7 +29,7 @@ zeroToday = now - timedelta(hours=now.hour, minutes=now.minute, seconds=now.seco
 # 获取23:59:59
 lastToday = zeroToday + timedelta(hours=23, minutes=59, seconds=59)
 print(zeroToday,lastToday)
-print(time.mktime(zeroToday.timetuple()))
+print(time.mktime(zeroToday.timetuple())*1000)
 print(time.mktime(lastToday.timetuple()))
 print(type(time.mktime(lastToday.timetuple())))
 
@@ -46,9 +46,7 @@ print(type(time.mktime(lastToday.timetuple())))
 # delta = l_date - f_date
 # print(delta.days)
 #
-from datetime import datetime
-days = 737935
-print(datetime.fromordinal(days - 365))
+
 #
 #
 # print(float("0.85") * int("8"))
@@ -61,5 +59,28 @@ print(datetime.fromordinal(days - 365))
 # print(d1)
 # print(d2)
 # print(int(time.time()*1000))
-if "0":
-    print("--------------")
+# if "0":
+#     print("--------------")
+# print(datetime(2020,11,9))
+
+def date_range(start_time, end_time, effect_time):
+    dates = []
+    # dt = datetime.strptime(start_time, "%Y-%m-%d")
+    dt = start_time
+    date1 = start_time
+    while date1 <= end_time:
+        dates.append(date1.strftime("%Y-%m-%d"))
+        dt = dt + timedelta(1)
+        date1 = dt
+    for e_time in effect_time:
+        if e_time in dates:
+            dates.remove(e_time)
+
+    return dates
+
+# print(date_range(datetime(2020,11,1), datetime(2020,11,24), []))
+
+
+from datetime import datetime
+days = 738075
+print(datetime.fromordinal(days - 365))
