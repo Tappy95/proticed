@@ -297,16 +297,16 @@ def get_amazon_pd():
     print(json.dumps(result), "getstatus")
 
 
-def get_ebay_product():
-    result = GetEbayProductBySearch(
-        station="UK",
-        item_ids=['363158592629']
-        # item_location="UK"
-    ).request()
+async def get_ebay_product():
+    result = await GetEbayProductBySearch(
+        'UK', current_page=2,
+        item_ids=[], p_l1_id='2624',
+        sales_week1_start=1,
+        last_modi_time_start=datetime.now() - timedelta(days=14)
+    ).aio_request(timeout=60, retry=4)
     print(json.dumps(result))
 
 
 if __name__ == '__main__':
-    # getkwrank()
-    # compare()
-    get_amazon_pd()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(get_ebay_product())

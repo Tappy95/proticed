@@ -1,0 +1,101 @@
+{
+  "code": "SUCCESS",
+  "message": "",
+  "data": {
+    "displayItemCategoryCode": 0,
+    "name": "ROOT",
+    "status": "ACTIVE",
+    "child": [
+      {
+        "displayItemCategoryCode": 77834,
+        "name": "가구/홈데코",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 62588,
+        "name": "가전/디지털",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 66679,
+        "name": "도서",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 79648,
+        "name": "문구/오피스",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 65799,
+        "name": "반려/애완용품",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 56112,
+        "name": "뷰티",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 63897,
+        "name": "생활용품",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 103371,
+        "name": "스포츠/레져",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 59258,
+        "name": "식품",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 102984,
+        "name": "완구/취미",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 79138,
+        "name": "음반/DVD",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 78647,
+        "name": "자동차용품",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 80285,
+        "name": "주방용품",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 76844,
+        "name": "출산/유아동",
+        "status": "ACTIVE",
+        "child": []
+      },
+      {
+        "displayItemCategoryCode": 69182,
+        "name": "패션의류잡화",
+        "status": "ACTIVE",
+        "child": []
+      }
+    ]
+  }
+}

@@ -54,6 +54,8 @@ class BaseAPI:
                 url = self.address + self.api
                 async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=timeout)) as session:
                     async with session.request("POST", url, data=param) as resp:
+                        print(resp.url)
+                        print(param)
                         if resp.status != 200:
                             logger.error("[status code error] code: {} url: {}".format(
                                         resp.status, url))
