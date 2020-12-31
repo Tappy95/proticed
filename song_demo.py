@@ -292,7 +292,7 @@ def get_amazon_pd():
     #     conn.execute()
     result = GetAmazonProductBySearch(
         station='US',
-        asin='B07D3R951C'
+        asin='B00MJ7VL1O'
     ).request()
     print(json.dumps(result), "getstatus")
 
@@ -309,4 +309,4 @@ async def get_ebay_product():
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_ebay_product())
+    loop.run_until_complete(get_amazon_pd())
