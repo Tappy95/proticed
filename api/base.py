@@ -7,7 +7,6 @@ from util.log import logger
 
 
 class BaseAPI:
-
     u_name = 'bailun'
     skey = '88UN2AZ1kUfi1HAg'
     address = 'http://114.67.80.59:38080'
@@ -38,7 +37,7 @@ class BaseAPI:
                 resp = requests.post(url=url, data=param, timeout=timeout)
                 if resp.status_code != 200:
                     logger.error("[status code error] code: {} url: {}".format(
-                                resp.status_code, url))
+                        resp.status_code, url))
                 else:
                     return json.loads(resp.text)
             except Exception as exc:
@@ -58,7 +57,7 @@ class BaseAPI:
                         print(param)
                         if resp.status != 200:
                             logger.error("[status code error] code: {} url: {}".format(
-                                        resp.status, url))
+                                resp.status, url))
                         else:
                             return json.loads(await resp.text())
             except Exception as exc:

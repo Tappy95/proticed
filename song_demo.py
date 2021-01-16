@@ -307,6 +307,21 @@ async def get_ebay_product():
     print(json.dumps(result))
 
 
+async def get_ebay_product_sku():
+    result = await GetEbayProduct(
+        'US', ['184593886423']
+    ).aio_request(timeout=60, retry=4)
+    print(json.dumps(result))
+
+
+async def get_ebay_product_info():
+    result = await GetEbayProductBySearch(
+        'UK',
+        item_ids=['363088900390']
+    ).aio_request(timeout=60, retry=4)
+    print(json.dumps(result))
+
+
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_amazon_pd())
+    loop.run_until_complete(get_ebay_product_sku())

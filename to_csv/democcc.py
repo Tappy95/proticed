@@ -1,0 +1,3 @@
+a = 'https://www.ebay.co.uk/itm/Women-Ladies-Long-Sleeve-Hollow-Knitted-Pullover-Jumper-Sweater-Casual-Loose-Top/233789136042?_trkparms=aid%3D1110012%26algo%3DSPLICE.SOIPOST%26ao%3D1%26asc%3D20201210111451%26meid%3Dafeca43a0a9a47a79c258a52d4335644%26pid%3D101196%26rk%3D12%26rkt%3D12%26mehot%3Dnone%26sd%3D233789121911%26itm%3D233789136042%26pmt%3D1%26noa%3D0%26pg%3D2047675%26algv%3DPromotedSellersOtherItemsV2WithMLRv3%26brand%3DUnbranded&_trksid=p2047675.c101196.m2219'
+b = 'https://www.ebay.co.uk/itm/143468546034'
+print(b.split('/')[-1].split('?')[0])
