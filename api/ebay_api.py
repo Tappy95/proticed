@@ -32,10 +32,18 @@ class BaseAPI:
         'EBAY-PL': 212,
         'EBAY-SG': 216,
     }
-    APPID = 'hsfWwmhs-tianshiz-PRD-9f8f66498-3851d3d0'
-    DEVID = 'c1cd3fa3-bea2-4058-8ead-83c5d562ef01'
-    CERTID = 'PRD-f8f664985b00-3731-4e23-9258-8438'
-    TOKEN = 'AgAAAA**AQAAAA**aAAAAA**xXQIXQ**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6AHlIOnC5CAqAWdj6x9nY+seQ**7EIDAA**AAMAAA**IOoLODsPncRfznEUpBa0UvdO7TcxgzueyidoWl3m6bjN/O0DaWi1QlLq12gQrQsDy8L8Hg4VA2vD9FWYoWx1JtE6Gn5F2/mwRaEK5T3ZixOEo0/eCQx/L7Tbra6GTcylsLoiNQE3zbLq1lQvouLZ3G8Pc5qZpKRuYEr4AU207EACLXYfPvYOFdUHFddRRoBtS0icVvAyv4Q+i4J8HO+CBr6qx19wRkLFNZgyG5HPYvqfGCXIr3vNNcNYbrtp6FPlY18oZ5Fu3u5hVomENIJnba0WkG/1ncy0UbxmSW1c6YnzVmLgDaaqlVNnCuUe+RkTnxPsb4XBN9zmuh7O9ge1Dzna+M8dF4CeNpbt0Hs1COYaINFC/WcmMwsFsH4BUZN7FpA3VmfWe/6vQi8qnegjdI04lobJjAa0GL+ljlwMPGdQatgc53aIZ2w+BjsrdYqKY1HvdNyePyg9zic6GPxOGF+l01MqOlIVZZS6U4VrfD8DbyUwcf7hupOlhtcA7HhLlNAb65oxE3Jlm3yBIW1JJCfMUHFICVkKr2h0a+aCkQH/by0lEGBnP8u2X8ejSnzXxhO6xd4ZvSvWGzisMVm3IATIBOXHv6EETr4BP/gWawqVjYbLvtGLg+ufVp06M5KFCWubNEkDkcHb8CLDT90srr8H12VRuLAcX5tSTIOX9dENrpcRl22EANGS8OFBPSu9fMdzhZeB5Dm16U6seGlwYc7J+tWuGTBJRYqJzjW/XPpVLoiL3kghQGkLLgb56Uzl'
+    # APPID = 'hsfWwmhs-tianshiz-PRD-9f8f66498-3851d3d0'
+    # DEVID = 'c1cd3fa3-bea2-4058-8ead-83c5d562ef01'
+    # CERTID = 'PRD-f8f664985b00-3731-4e23-9258-8438'
+    # TOKEN = 'AgAAAA**AQAAAA**aAAAAA**xXQIXQ**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6AHlIOnC5CAqAWdj6x9nY+seQ**7EIDAA**AAMAAA**IOoLODsPncRfznEUpBa0UvdO7TcxgzueyidoWl3m6bjN/O0DaWi1QlLq12gQrQsDy8L8Hg4VA2vD9FWYoWx1JtE6Gn5F2/mwRaEK5T3ZixOEo0/eCQx/L7Tbra6GTcylsLoiNQE3zbLq1lQvouLZ3G8Pc5qZpKRuYEr4AU207EACLXYfPvYOFdUHFddRRoBtS0icVvAyv4Q+i4J8HO+CBr6qx19wRkLFNZgyG5HPYvqfGCXIr3vNNcNYbrtp6FPlY18oZ5Fu3u5hVomENIJnba0WkG/1ncy0UbxmSW1c6YnzVmLgDaaqlVNnCuUe+RkTnxPsb4XBN9zmuh7O9ge1Dzna+M8dF4CeNpbt0Hs1COYaINFC/WcmMwsFsH4BUZN7FpA3VmfWe/6vQi8qnegjdI04lobJjAa0GL+ljlwMPGdQatgc53aIZ2w+BjsrdYqKY1HvdNyePyg9zic6GPxOGF+l01MqOlIVZZS6U4VrfD8DbyUwcf7hupOlhtcA7HhLlNAb65oxE3Jlm3yBIW1JJCfMUHFICVkKr2h0a+aCkQH/by0lEGBnP8u2X8ejSnzXxhO6xd4ZvSvWGzisMVm3IATIBOXHv6EETr4BP/gWawqVjYbLvtGLg+ufVp06M5KFCWubNEkDkcHb8CLDT90srr8H12VRuLAcX5tSTIOX9dENrpcRl22EANGS8OFBPSu9fMdzhZeB5Dm16U6seGlwYc7J+tWuGTBJRYqJzjW/XPpVLoiL3kghQGkLLgb56Uzl'
+
+
+    # Song
+    APPID = '-anabigda-PRD-5736b19af-9405cb6d'
+    DEVID = '36c83a64-3553-46f3-8ef5-6bdd9f80729e'
+    CERTID = 'PRD-736b19afacfe-e402-4b2a-a461-0666'
+    TOKEN = 'AgAAAA**AQAAAA**aAAAAA**xTLgXw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6MEmIGiDJaFpgSdj6x9nY+seQ**J5EGAA**AAMAAA**HY8Esw3ufiEM0gRC4sWC3O7VVH6kxT4X1XS+B2yxo5WnocLda1wG4OyY38dPz/lMTMrP/E6XfmPQPty0Oq+rzwFpyYuzn9ejKHrUJvdnStUHTzCIHVRBMxccEg6fW5o+9b22jiOtvxScty/y0Ys+AiRSOY2yKNCWzDiUJvd7g8/fjS56lfkZt09ZY+pfi7U0baQ6AJLLrc5cT+L64VZ7ZuSuW0Hii2wlwculOdO7bsQUOi25YgrmuGLyTWYeQd//iR/3gJJvKGDfPRhJsMqiOXSXM+AR4KJmXCRPR3n48eLb13j5YJ4wA4MCy7G/19SfZOmj3zjXePWzoplQkKslOteR79TCTzLWepPbb+tvVo83sZdIqORka+q/NkNWaCTV89gGGbaxqaCJExO0FD4E7PKkDvET82EKgPm2BtfhosA0aamjXHQRC1I74qNYGe0AZd2pJH0TciarLcx8mOS8RawOzAYTEvo1RVeceKYpsX3zvJjYCFVHkHz06OCWkNAjPzkUo0GVYAGMlzvXHzgwJ/MfKKBtHFOctZXyhqlX+8suxmM3hM124NBI0hG0RiOdIUKpsK1xaYzyGhiUrhba5zgB/KHCm/XaVHHX2PQumoeqX/oSvO270moU4Np2zkv1B7Q5jJS8UWQGq5XAWj2v33wLEby1GY2Mot/dI0UIWhLPtUslpzx8k+1H3mDPIa45T5LxkMWMB46P8WjcFCtS/4ajDbBYfuP8W+oJRUhHapP58+IkHohyMS353abA9WYp'
+
 
     connector = aiohttp.TCPConnector(enable_cleanup_closed=True)
     params = None
@@ -114,5 +122,11 @@ if __name__ == '__main__':
         print(json.dumps(dct))
 
 
+    async def test_pro():
+        api = GetItem('uk', '273812802701')
+        dct = await api.aio_request()
+        print(json.dumps(dct))
+
+
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(test())
+    loop.run_until_complete(test_pro())

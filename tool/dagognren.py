@@ -522,7 +522,7 @@ mapping_userId_dict = {
 }
 
 
-def run(name: int):
+def run(name: str):
     if mapping_userId_dict.get(name, None):
         res = requests.get(f'https://api.oa.bailuntec.com/api/Login/GetUserID?ID={mapping_userId_dict[name]}')
         token = json.loads(res.text)['result']
@@ -530,6 +530,7 @@ def run(name: int):
         res = requests.get(
             f'https://api.oa.bailuntec.com/api/MyMessageManage/GetWageDetailsAsync?Token={token}&PageIndex=1&PageNumber=10')
         info = json.loads(res.text)
+        print(info)
         return info
     else:
         return "未收录该员工account, 请先将员工信息添加至 mapping_userId_dict"
